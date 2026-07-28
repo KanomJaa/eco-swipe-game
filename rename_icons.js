@@ -1,5 +1,9 @@
-const fs = require('fs');
-const path = require('path');
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const dir = path.join(__dirname, 'public', 'icons');
 
@@ -33,21 +37,23 @@ const keywords = [
     { key: 'แอลกอฮอล์', name: 'alcohol.png' }
 ];
 
-const files = fs.readdirSync(dir);
-files.forEach(file => {
-    let newName = null;
-    if (renameMap[file]) {
-        newName = renameMap[file];
-    } else {
-        for (const k of keywords) {
-            if (file.includes(k.key)) {
-                newName = k.name;
-                break;
+if (fs.existsSync(dir)) {
+    const files = fs.readdirSync(dir);
+    files.forEach(file => {
+        let newName = null;
+        if (renameMap[file]) {
+            newName = renameMap[file];
+        } else {
+            for (const k of keywords) {
+                if (file.includes(k.key)) {
+                    newName = k.name;
+                    break;
+                }
             }
         }
-    }
-    if (newName) {
-        fs.renameSync(path.join(dir, file), path.join(dir, newName));
-        console.log(`Renamed: ${file} -> ${newName}`);
-    }
-});
+        if (newName && newName !== file) {
+            fs.renameSync(path.join(dir, file), path.join(dir, newName));
+            console.log(`Renamed: ${file} -> ${newName}`);
+        }
+    });
+}

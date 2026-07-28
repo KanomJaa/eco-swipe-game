@@ -117,6 +117,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     registerScreen.style.display = 'flex';
 
     // Populate avatars
+    let activeAvatarEl = null;
+
     function initAvatarGrid() {
         rowMale.innerHTML = '';
         rowFemale.innerHTML = '';
@@ -124,14 +126,20 @@ document.addEventListener('DOMContentLoaded', async () => {
         for (let i = 1; i <= 7; i++) {
             const path = `icons/male_${i}.png`;
             const el = createAvatarItem(path);
-            if (path === selectedAvatar) el.classList.add('active');
+            if (path === selectedAvatar) {
+                el.classList.add('active');
+                activeAvatarEl = el;
+            }
             rowMale.appendChild(el);
         }
 
         for (let i = 1; i <= 7; i++) {
             const path = `icons/female_${i}.png`;
             const el = createAvatarItem(path);
-            if (path === selectedAvatar) el.classList.add('active');
+            if (path === selectedAvatar) {
+                el.classList.add('active');
+                activeAvatarEl = el;
+            }
             rowFemale.appendChild(el);
         }
     }
@@ -140,12 +148,17 @@ document.addEventListener('DOMContentLoaded', async () => {
         const item = document.createElement('div');
         item.className = 'avatar-item';
         item.dataset.path = path;
-        item.innerHTML = `<img src="/${path}" alt="Avatar">`;
-        item.addEventListener('click', () => {
-            document.querySelectorAll('.avatar-item').forEach(el => el.classList.remove('active'));
+        item.innerHTML = `<img src="/${path}" alt="Avatar" loading="lazy">`;
+
+        const selectThis = (e) => {
+            if (e) e.preventDefault();
+            if (activeAvatarEl) activeAvatarEl.classList.remove('active');
             item.classList.add('active');
+            activeAvatarEl = item;
             selectedAvatar = path;
-        });
+        };
+
+        item.addEventListener('click', selectThis);
         return item;
     }
 

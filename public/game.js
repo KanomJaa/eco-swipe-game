@@ -374,6 +374,11 @@ async function endGame() {
             body: JSON.stringify({ score: state.score, combo: state.maxCombo, correct: state.correct, wrong: state.wrong }),
         });
         submitResult = await res.json();
+        if (submitResult && submitResult.error) {
+            sessionStorage.clear();
+            window.location.href = '/';
+            return;
+        }
     } catch (err) { console.error('Score submit failed:', err); }
 
     $('final-score').textContent = state.score;
@@ -541,6 +546,30 @@ $('btn-leaderboard').addEventListener('click', () => { window.location.href = '/
 if ($('top-widget-btn')) {
     $('top-widget-btn').addEventListener('click', () => { window.location.href = '/leaderboard.html'; });
 }
+
+// ========================================
+// Player Verification & Redirect
+// ========================================
+async function checkPlayerValidation() {
+    try {
+        const res = await fetch('/api/player');
+        const data = await res.json();
+        if (!data.registered || !data.nickname) {
+            sessionStorage.clear();
+            window.location.href = '/';
+            return false;
+        }
+        sessionStorage.setItem('playerNickname', data.nickname);
+        sessionStorage.setItem('playerAvatar', data.avatar || 'icons/male_1.png');
+        return true;
+    } catch (err) {
+        console.error('Player validation check error:', err);
+        return true;
+    }
+}
+
+// Run player check immediately on load
+checkPlayerValidation();
 
 // Auto show summary if returning from leaderboard
 checkAutoShowSummary();

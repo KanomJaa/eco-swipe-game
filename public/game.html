@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>🧪 ปัดขวาพิทักษ์โลก</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600;700;800&family=Nunito:wght@400;700;800&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="/game.css" />
+</head>
+
+<body>
+    <canvas id="bg-canvas"></canvas>
+
+    <!-- HUD -->
+    <header class="game-hud" id="game-hud">
+        <div class="hud-row">
+            <div class="hud-item">
+                <span class="hud-label">⭐ คะแนน</span>
+                <span class="hud-value" id="hud-score">0</span>
+            </div>
+            <div class="hud-item hud-timer">
+                <span class="hud-label">⏰ เวลา</span>
+                <span class="hud-value" id="hud-timer">60</span>
+            </div>
+            <div class="hud-item">
+                <span class="hud-label">🔥 คอมโบ</span>
+                <span class="hud-value" id="hud-combo">x1</span>
+            </div>
+        </div>
+        <div class="timer-bar">
+            <div class="timer-fill" id="timer-fill"></div>
+        </div>
+    </header>
+
+    <!-- Top 1-3 Widget (Top Right) -->
+    <div class="top-leaderboard-widget" id="top-widget">
+        <div class="top-widget-title">🏆 TOP 3</div>
+        <div class="top-widget-list" id="top-widget-list">
+            <!-- Ranks loaded dynamically -->
+        </div>
+    </div>
+
+    <!-- Bin Labels -->
+    <div class="bin-label bin-left" id="bin-left">
+        <span class="bin-icon">♻️</span>
+        <span class="bin-name">รีไซเคิล</span>
+    </div>
+    <div class="bin-label bin-right" id="bin-right">
+        <span class="bin-icon">☢️</span>
+        <span class="bin-name">อันตราย</span>
+    </div>
+
+    <!-- Swipe Area -->
+    <main class="game-area" id="game-area">
+        <div class="instruction" id="instruction">
+            <p>👈 ปัดซ้าย = รีไซเคิล ♻️</p>
+            <p>👉 ปัดขวา = อันตราย ☢️</p>
+            <p class="instruction-sub">✨ แตะเพื่อเริ่มทดลอง! ✨</p>
+        </div>
+
+        <div class="item-card" id="item-card" style="display:none;">
+            <div class="item-emoji" id="item-emoji">🧴</div>
+            <div class="item-name" id="item-name">ขวดพลาสติก</div>
+            <div class="item-hint" id="item-hint"></div>
+        </div>
+    </main>
+
+    <!-- Streak dots -->
+    <div class="streak-bar" id="streak-bar"></div>
+
+    <!-- Feedback -->
+    <div class="feedback" id="feedback"></div>
+
+    <!-- Combo popup (full screen) -->
+    <div class="combo-popup" id="combo-popup">
+        <div class="combo-inner">
+            <div class="combo-text" id="combo-text">🔥 x2!</div>
+            <div class="combo-sub" id="combo-sub">คอมโบ!</div>
+        </div>
+    </div>
+
+    <!-- Game Over -->
+    <div class="gameover-overlay" id="gameover-overlay" style="display:none;">
+        <div class="gameover-card">
+            <div class="gameover-top-badge" id="gameover-top-badge" style="display:none;"></div>
+            <div class="gameover-emoji" id="gameover-emoji">🎉</div>
+            <h2 class="gameover-title" id="gameover-title">การทดลองเสร็จสิ้น!</h2>
+            <div class="gameover-rank-sub" id="gameover-rank-sub" style="display:none;"></div>
+            <div class="gameover-stats">
+                <div class="stat-row"><span>⭐ คะแนนรวม</span><span class="stat-value" id="final-score">0</span></div>
+                <div class="stat-row"><span>✅ ตอบถูก</span><span class="stat-value stat-correct"
+                        id="final-correct">0</span></div>
+                <div class="stat-row"><span>❌ ตอบผิด</span><span class="stat-value stat-wrong" id="final-wrong">0</span>
+                </div>
+                <div class="stat-row"><span>🔥 คอมโบสูงสุด</span><span class="stat-value stat-combo"
+                        id="final-combo">x1</span></div>
+            </div>
+            <button class="btn-replay" id="btn-replay">🔄 เล่นอีกครั้ง</button>
+            <button class="btn-leaderboard" id="btn-leaderboard">🏆 ดูอันดับ</button>
+        </div>
+    </div>
+
+    <script src="/game.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,467 @@
+// ========================================
+// Item Dataset
+// ========================================
+const ITEMS = [
+    // ♻️ Recyclable
+    { name: 'กระดาษ A4', emoji: '📄', type: 'recycle', hint: 'กระดาษขาว' },
+    { name: 'กระป๋องอลูมิเนียม', emoji: '🥫', type: 'recycle', hint: 'โลหะ' },
+    { name: 'ขวดแก้ว', emoji: '🍶', type: 'recycle', hint: 'แก้วใส' },
+    { name: 'กล่องกระดาษ', emoji: '📦', type: 'recycle', hint: 'กระดาษลูกฟูก' },
+    { name: 'หนังสือพิมพ์', emoji: '📰', type: 'recycle', hint: 'กระดาษ' },
+    { name: 'ถุงพลาสติก', emoji: '🛍️', type: 'recycle', hint: 'พลาสติก HDPE' },
+    { name: 'ขวดน้ำ', emoji: '💧', type: 'recycle', hint: 'พลาสติกใส', icon: 'icons/ขวดน้ำ.png' },
+    { name: 'ลวดโลหะ', emoji: '🔩', type: 'recycle', hint: 'โลหะ' },
+    { name: 'แก้วพลาสติก', emoji: '🥤', type: 'recycle', hint: 'พลาสติก PP' },
+    { name: 'กระดาษลัง', emoji: '🗃️', type: 'recycle', hint: 'กระดาษแข็ง' },
+    { name: 'ช้อนสแตนเลส', emoji: '🥄', type: 'recycle', hint: 'โลหะ' },
+    { name: 'เศษผ้า', emoji: '👕', type: 'recycle', hint: 'สิ่งทอ' },
+    { name: 'ถาดอาหารพลาสติก', emoji: '🍱', type: 'recycle', hint: 'พลาสติก' },
+    // ☢️ Hazardous
+    { name: 'แบตเตอรี่', emoji: '🔋', type: 'hazard', hint: 'สารตะกั่ว-กรด', icon: 'icons/แบตเตอรี่.png' },
+    { name: 'หลอดฟลูออเรสเซนต์', emoji: '💡', type: 'hazard', hint: 'มีปรอท' },
+    { name: 'น้ำยาฟอกขาว', emoji: '🧪', type: 'hazard', hint: 'สารเคมีกัดกร่อน', icon: 'icons/น้ำยาฟอกขาว.png' },
+    { name: 'ยาหมดอายุ', emoji: '💊', type: 'hazard', hint: 'สารเคมีตกค้าง' },
+    { name: 'สีทาบ้าน', emoji: '🎨', type: 'hazard', hint: 'สารระเหย VOC', icon: 'icons/สีทาบ้าน.png' },
+    { name: 'น้ำมันเครื่อง', emoji: '🛢️', type: 'hazard', hint: 'ปิโตรเลียม', icon: 'icons/น้ำมันเครื่อง.png' },
+    { name: 'ยาฆ่าแมลง', emoji: '🐛', type: 'hazard', hint: 'สารพิษ', icon: 'icons/ยาฆ่าแมลง.png' },
+    { name: 'กระป๋องสเปรย์', emoji: '🧯', type: 'hazard', hint: 'แก๊สอัดความดัน' },
+    { name: 'ถ่านไฟฉาย', emoji: '🔋', type: 'hazard', hint: 'โลหะหนัก' },
+    { name: 'หมึกพิมพ์', emoji: '🖨️', type: 'hazard', hint: 'สารเคมี', icon: 'icons/หมึกพิมพ์.png' },
+    { name: 'ทินเนอร์', emoji: '⚗️', type: 'hazard', hint: 'ตัวทำละลาย' },
+    { name: 'กรดแบตเตอรี่', emoji: '🧫', type: 'hazard', hint: 'กรดซัลฟิวริก' },
+    { name: 'ปรอทจากเทอร์โมมิเตอร์', emoji: '🌡️', type: 'hazard', hint: 'โลหะหนัก' },
+    { name: 'ขยะอิเล็กทรอนิกส์', emoji: '📱', type: 'hazard', hint: 'มีตะกั่ว-ปรอท' },
+    { name: 'น้ำยาล้างห้องน้ำ', emoji: '🚽', type: 'hazard', hint: 'กรด-ด่าง', icon: 'icons/น้ำยาล้างห้องน้ำ.png' },
+    { name: 'กาวเรซิน', emoji: '🧴', type: 'hazard', hint: 'สารเคมีเป็นพิษ', icon: 'icons/กาวเรซิน.png' },
+    { name: 'แอลกอฮอล์ทำความสะอาด', emoji: '🧹', type: 'hazard', hint: 'ไวไฟ', icon: 'icons/แอลกอฮอล์ทำความสะอาด.png' },
+];
+
+// ========================================
+// Constants
+// ========================================
+const GAME_DURATION = 60;
+const BASE_SCORE = 10;
+const WRONG_PENALTY = -5;
+const COMBO_THRESHOLDS = [
+    { streak: 10, multiplier: 5 },
+    { streak: 6, multiplier: 3 },
+    { streak: 3, multiplier: 2 },
+    { streak: 0, multiplier: 1 },
+];
+
+// ========================================
+// State
+// ========================================
+let state = {
+    score: 0, combo: 0, maxCombo: 0, correct: 0, wrong: 0,
+    timeLeft: GAME_DURATION, isPlaying: false, currentItem: null,
+    usedItems: [], timerInterval: null,
+};
+
+// ========================================
+// DOM
+// ========================================
+const $ = (id) => document.getElementById(id);
+const hudScore = $('hud-score');
+const hudTimer = $('hud-timer');
+const hudCombo = $('hud-combo');
+const timerFill = $('timer-fill');
+const itemCard = $('item-card');
+const itemEmoji = $('item-emoji');
+const itemName = $('item-name');
+const itemHint = $('item-hint');
+const binLeft = $('bin-left');
+const binRight = $('bin-right');
+const feedbackEl = $('feedback');
+const comboPopup = $('combo-popup');
+const comboText = $('combo-text');
+const comboSub = $('combo-sub');
+const instruction = $('instruction');
+const gameoverOverlay = $('gameover-overlay');
+const streakBar = $('streak-bar');
+
+// ========================================
+// Background Particles (pastel)
+// ========================================
+const canvas = $('bg-canvas');
+const ctx = canvas.getContext('2d');
+let particles = [];
+
+function initBg() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    particles = [];
+    const colors = ['rgba(255,142,199,0.4)', 'rgba(197,163,255,0.35)', 'rgba(135,206,235,0.3)', 'rgba(184,240,216,0.3)', 'rgba(255,243,176,0.35)'];
+    for (let i = 0; i < 35; i++) {
+        particles.push({
+            x: Math.random() * canvas.width, y: Math.random() * canvas.height,
+            size: Math.random() * 3 + 1, speedX: (Math.random() - 0.5) * 0.3, speedY: (Math.random() - 0.5) * 0.3,
+            color: colors[Math.floor(Math.random() * colors.length)], pulse: Math.random() * Math.PI * 2,
+        });
+    }
+}
+
+function animateBg() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    particles.forEach(p => {
+        p.x += p.speedX; p.y += p.speedY; p.pulse += 0.01;
+        if (p.x < 0) p.x = canvas.width; if (p.x > canvas.width) p.x = 0;
+        if (p.y < 0) p.y = canvas.height; if (p.y > canvas.height) p.y = 0;
+        ctx.save();
+        ctx.globalAlpha = 0.3 + 0.3 * Math.sin(p.pulse);
+        ctx.fillStyle = p.color; ctx.shadowColor = p.color; ctx.shadowBlur = p.size * 4;
+        ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2); ctx.fill();
+        ctx.restore();
+    });
+    requestAnimationFrame(animateBg);
+}
+
+window.addEventListener('resize', () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; });
+initBg(); animateBg();
+
+// ========================================
+// Streak dots
+// ========================================
+function buildStreakDots() {
+    streakBar.innerHTML = '';
+    for (let i = 0; i < 10; i++) {
+        const dot = document.createElement('div');
+        dot.className = 'streak-dot';
+        streakBar.appendChild(dot);
+    }
+}
+buildStreakDots();
+
+function updateStreakDots() {
+    const dots = streakBar.querySelectorAll('.streak-dot');
+    dots.forEach((dot, i) => {
+        dot.className = 'streak-dot';
+        if (i < state.combo) {
+            dot.classList.add('active');
+            if (state.combo >= 10) dot.classList.add('gold');
+        }
+    });
+}
+
+// ========================================
+// Combo & Scoring
+// ========================================
+function getMultiplier() {
+    for (const t of COMBO_THRESHOLDS) {
+        if (state.combo >= t.streak) return t.multiplier;
+    }
+    return 1;
+}
+
+function shuffleItems() { return [...ITEMS].sort(() => Math.random() - 0.5); }
+
+function nextItem() {
+    if (!state.isPlaying) return;
+    if (state.usedItems.length === 0) state.usedItems = shuffleItems();
+
+    state.currentItem = state.usedItems.pop();
+    const item = state.currentItem;
+
+    if (item.icon) {
+        itemEmoji.innerHTML = `<img src="${item.icon}" alt="${item.name}" class="item-icon-img">`;
+    } else {
+        itemEmoji.innerHTML = '';
+        itemEmoji.textContent = item.emoji;
+    }
+    itemName.textContent = item.name;
+    itemHint.textContent = item.hint;
+
+    itemCard.style.display = 'flex';
+    itemCard.style.transform = '';
+    itemCard.style.opacity = '1';
+    itemCard.className = 'item-card entering'; // Falls from top!
+
+    setTimeout(() => { itemCard.classList.remove('entering'); }, 450);
+}
+
+function handleSwipe(direction) {
+    if (!state.isPlaying || !state.currentItem) return;
+
+    const item = state.currentItem;
+    const isCorrect =
+        (direction === 'left' && item.type === 'recycle') ||
+        (direction === 'right' && item.type === 'hazard');
+
+    const prevMult = getMultiplier();
+
+    if (isCorrect) {
+        const mult = getMultiplier();
+        const points = BASE_SCORE * mult;
+        state.score += points;
+        state.combo++;
+        state.correct++;
+        if (state.combo > state.maxCombo) state.maxCombo = state.combo;
+
+        showFeedback('✅');
+        showScoreFly(`+${points}`);
+
+        // Check for new combo milestone — show dramatic popup!
+        const newMult = getMultiplier();
+        if (newMult > prevMult) {
+            showComboPopup(newMult);
+        }
+    } else {
+        state.score = Math.max(0, state.score + WRONG_PENALTY);
+        state.combo = 0;
+        state.wrong++;
+        showFeedback('❌');
+        showScoreFly(`${WRONG_PENALTY}`, true);
+    }
+
+    itemCard.classList.add(direction === 'left' ? 'exit-left' : 'exit-right');
+    state.currentItem = null;
+    updateHUD();
+    updateStreakDots();
+
+    if (navigator.vibrate) navigator.vibrate(isCorrect ? 30 : [50, 30, 50]);
+
+    setTimeout(nextItem, 350);
+}
+
+function updateHUD() {
+    hudScore.textContent = state.score;
+    const mult = getMultiplier();
+    hudCombo.textContent = `x${mult}`;
+    hudTimer.textContent = state.timeLeft;
+
+    // Animate score change
+    hudScore.style.transform = 'scale(1.3)';
+    setTimeout(() => { hudScore.style.transform = 'scale(1)'; }, 200);
+    hudScore.style.transition = 'transform 0.2s ease';
+
+    const pct = state.timeLeft / GAME_DURATION;
+    timerFill.style.width = `${pct * 100}%`;
+
+    if (pct <= 0.15) { hudTimer.className = 'hud-value danger'; timerFill.className = 'timer-fill danger'; }
+    else if (pct <= 0.35) { hudTimer.className = 'hud-value warning'; timerFill.className = 'timer-fill warning'; }
+    else { hudTimer.className = 'hud-value'; timerFill.className = 'timer-fill'; }
+
+    // Combo color
+    if (mult >= 5) hudCombo.style.color = '#ff6baf';
+    else if (mult >= 3) hudCombo.style.color = '#c5a3ff';
+    else if (mult >= 2) hudCombo.style.color = '#87ceeb';
+    else hudCombo.style.color = '#2d1b4e';
+}
+
+function showFeedback(emoji) {
+    feedbackEl.textContent = emoji;
+    feedbackEl.className = 'feedback show';
+    setTimeout(() => { feedbackEl.className = 'feedback'; }, 600);
+}
+
+function showScoreFly(text, isNeg) {
+    const el = document.createElement('div');
+    el.className = `score-fly ${isNeg ? 'negative' : 'positive'}`;
+    el.textContent = text;
+    el.style.top = '35%';
+    el.style.left = '45%';
+    el.style.transform = 'translateX(-50%)';
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 800);
+}
+
+function showComboPopup(mult) {
+    const messages = {
+        2: { text: '🔥 x2 คอมโบ!', sub: 'เก่งมาก! ได้คะแนน 2 เท่า!' },
+        3: { text: '⚡ x3 คอมโบ!', sub: 'สุดยอด! ได้คะแนน 3 เท่า!' },
+        5: { text: '💥 x5 ULTRA!', sub: 'เทพ!! คะแนน 5 เท่า!!!' },
+    };
+    const msg = messages[mult] || { text: `🔥 x${mult}!`, sub: 'คอมโบ!' };
+
+    comboText.textContent = msg.text;
+    comboSub.textContent = msg.sub;
+    comboPopup.className = 'combo-popup show';
+
+    if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+
+    setTimeout(() => { comboPopup.className = 'combo-popup'; }, 1200);
+}
+
+// ========================================
+// Timer
+// ========================================
+function startTimer() {
+    state.timerInterval = setInterval(() => {
+        state.timeLeft--;
+        updateHUD();
+        if (state.timeLeft <= 0) endGame();
+    }, 1000);
+}
+
+// ========================================
+// Game Start / End
+// ========================================
+function startGame() {
+    state = {
+        score: 0, combo: 0, maxCombo: 0, correct: 0, wrong: 0,
+        timeLeft: GAME_DURATION, isPlaying: true, currentItem: null,
+        usedItems: shuffleItems(), timerInterval: null,
+    };
+    instruction.style.display = 'none';
+    gameoverOverlay.style.display = 'none';
+    buildStreakDots();
+    updateHUD();
+    startTimer();
+    nextItem();
+}
+
+async function loadTopWidget() {
+    const listEl = $('top-widget-list');
+    if (!listEl) return;
+    try {
+        const res = await fetch('/api/leaderboard');
+        const data = await res.json();
+        const top3 = data.slice(0, 3);
+        if (!top3.length) {
+            listEl.innerHTML = '<div class="top-widget-empty">ยังไม่มีอันดับ</div>';
+            return;
+        }
+        listEl.innerHTML = top3.map((player, idx) => {
+            const rank = idx + 1;
+            return `
+                <div class="top-widget-item rank-${rank}">
+                    <img src="/icons/No${rank}.png" class="top-widget-icon" alt="Top ${rank}">
+                    <span class="top-widget-name">${escHtml(player.nickname)}</span>
+                    <span class="top-widget-score">${player.score.toLocaleString()}</span>
+                </div>
+            `;
+        }).join('');
+    } catch (err) {
+        console.error('Failed to load top widget:', err);
+    }
+}
+
+function escHtml(str) {
+    if (!str) return '';
+    return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+loadTopWidget();
+setInterval(loadTopWidget, 10000);
+
+async function endGame() {
+    state.isPlaying = false;
+    clearInterval(state.timerInterval);
+    itemCard.style.display = 'none';
+
+    let submitResult = null;
+    try {
+        const res = await fetch('/api/score', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ score: state.score, combo: state.maxCombo, correct: state.correct, wrong: state.wrong }),
+        });
+        submitResult = await res.json();
+    } catch (err) { console.error('Score submit failed:', err); }
+
+    $('final-score').textContent = state.score;
+    $('final-correct').textContent = state.correct;
+    $('final-wrong').textContent = state.wrong;
+    const maxMult = state.maxCombo >= 10 ? 5 : state.maxCombo >= 6 ? 3 : state.maxCombo >= 3 ? 2 : 1;
+    $('final-combo').textContent = `x${maxMult}`;
+
+    const emojiEl = $('gameover-emoji');
+    const subEl = $('gameover-rank-sub');
+    const topBadgeEl = $('gameover-top-badge');
+
+    if (submitResult && submitResult.newTopRank) {
+        const rank = submitResult.newTopRank;
+        if (topBadgeEl) {
+            topBadgeEl.innerHTML = `<img src="/icons/No${rank}.png" class="rank-badge-floating-img" alt="Top ${rank}">`;
+            topBadgeEl.style.display = 'block';
+        }
+        emojiEl.style.display = 'none';
+        subEl.textContent = `🏆 ยินดีด้วย! คุณทำลายสถิติใหม่ ติดอันดับ Top ${rank}!`;
+        subEl.style.display = 'block';
+    } else {
+        if (topBadgeEl) topBadgeEl.style.display = 'none';
+        emojiEl.textContent = '🎉';
+        emojiEl.style.display = 'block';
+        subEl.style.display = 'none';
+    }
+
+    gameoverOverlay.style.display = 'flex';
+    launchConfetti();
+    loadTopWidget();
+}
+
+function launchConfetti() {
+    const colors = ['#ff8ec7', '#c5a3ff', '#87ceeb', '#6dd5a0', '#ffe066', '#ff6b6b', '#ffb347', '#77dd77'];
+    const confettiCount = 80;
+    for (let i = 0; i < confettiCount; i++) {
+        const el = document.createElement('div');
+        el.className = 'confetti-piece';
+        el.style.left = Math.random() * 100 + 'vw';
+        el.style.background = colors[Math.floor(Math.random() * colors.length)];
+        el.style.width = (Math.random() * 8 + 5) + 'px';
+        el.style.height = (Math.random() * 14 + 8) + 'px';
+        el.style.animationDuration = (Math.random() * 2 + 2) + 's';
+        el.style.animationDelay = (Math.random() * 1.5) + 's';
+        el.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+        document.body.appendChild(el);
+        setTimeout(() => el.remove(), 5000);
+    }
+}
+
+// ========================================
+// Touch / Mouse Swipe
+// ========================================
+let drag = { active: false, startX: 0, curX: 0, startTime: 0 };
+const SWIPE_THRESHOLD = 80;
+const VELOCITY_THRESHOLD = 0.3;
+
+function onStart(x) {
+    if (!state.isPlaying || !state.currentItem) return;
+    drag = { active: true, startX: x, curX: x, startTime: Date.now() };
+}
+
+function onMove(x) {
+    if (!drag.active) return;
+    drag.curX = x;
+    const dx = x - drag.startX;
+    const rot = dx * 0.1;
+    const opc = Math.max(0.5, 1 - Math.abs(dx) / 400);
+    itemCard.style.transform = `translateX(${dx}px) rotate(${rot}deg)`;
+    itemCard.style.opacity = opc;
+
+    if (dx < -40) { binLeft.classList.add('active'); binRight.classList.remove('active'); itemCard.className = 'item-card swipe-left'; }
+    else if (dx > 40) { binRight.classList.add('active'); binLeft.classList.remove('active'); itemCard.className = 'item-card swipe-right'; }
+    else { binLeft.classList.remove('active'); binRight.classList.remove('active'); itemCard.className = 'item-card'; }
+}
+
+function onEnd() {
+    if (!drag.active) return;
+    drag.active = false;
+    const dx = drag.curX - drag.startX;
+    const vel = Math.abs(dx) / (Date.now() - drag.startTime);
+    binLeft.classList.remove('active');
+    binRight.classList.remove('active');
+
+    if (Math.abs(dx) > SWIPE_THRESHOLD || vel > VELOCITY_THRESHOLD) {
+        handleSwipe(dx < 0 ? 'left' : 'right');
+    } else {
+        itemCard.style.transform = '';
+        itemCard.style.opacity = '1';
+        itemCard.className = 'item-card';
+    }
+}
+
+document.addEventListener('touchstart', e => onStart(e.touches[0].clientX), { passive: true });
+document.addEventListener('touchmove', e => { e.preventDefault(); onMove(e.touches[0].clientX); }, { passive: false });
+document.addEventListener('touchend', () => onEnd(), { passive: true });
+document.addEventListener('mousedown', e => onStart(e.clientX));
+document.addEventListener('mousemove', e => onMove(e.clientX));
+document.addEventListener('mouseup', () => onEnd());
+
+// ========================================
+// Start triggers
+// ========================================
+instruction.addEventListener('click', startGame);
+instruction.addEventListener('touchend', e => { e.preventDefault(); startGame(); });
+$('btn-replay').addEventListener('click', startGame);
+$('btn-leaderboard').addEventListener('click', () => { window.location.href = '/leaderboard.html'; });

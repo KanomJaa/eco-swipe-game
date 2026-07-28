@@ -93,7 +93,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Check if already registered via IP
     try {
-        const res = await fetch('/api/player');
+        const res = await fetch(`/api/player?t=${Date.now()}`);
         const data = await res.json();
 
         if (data.registered && data.nickname) {
@@ -107,6 +107,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             input.value = data.nickname;
             charCount.textContent = `${data.nickname.length}/16`;
             if (data.avatar) selectedAvatar = data.avatar;
+        } else {
+            sessionStorage.clear();
         }
     } catch (err) {
         console.error('Failed to check player:', err);
@@ -194,6 +196,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const data = await res.json();
 
             if (data.success) {
+                sessionStorage.removeItem('lastGameSummary');
                 sessionStorage.setItem('playerNickname', data.nickname);
                 sessionStorage.setItem('playerAvatar', data.avatar);
                 if (navigator.vibrate) navigator.vibrate([50, 50, 100]);

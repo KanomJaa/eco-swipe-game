@@ -100,6 +100,14 @@ app.set('trust proxy', true);
 app.use(express.json());
 app.use(express.static(join(__dirname, 'public')));
 
+// Disable caching for all API endpoints (fixes mobile browser disk cache issue)
+app.use('/api', (req, res, next) => {
+    res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+    res.set('Pragma', 'no-cache');
+    res.set('Expires', '0');
+    next();
+});
+
 // ========================================
 // API Routes
 // ========================================

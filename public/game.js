@@ -297,6 +297,7 @@ function startTimer() {
 // Game Start / End
 // ========================================
 function startGame() {
+    sessionStorage.removeItem('lastGameSummary');
     state = {
         score: 0, combo: 0, maxCombo: 0, correct: 0, wrong: 0,
         timeLeft: GAME_DURATION, isPlaying: true, currentItem: null,
@@ -552,7 +553,7 @@ if ($('top-widget-btn')) {
 // ========================================
 async function checkPlayerValidation() {
     try {
-        const res = await fetch('/api/player');
+        const res = await fetch(`/api/player?t=${Date.now()}`);
         const data = await res.json();
         if (!data.registered || !data.nickname) {
             sessionStorage.clear();

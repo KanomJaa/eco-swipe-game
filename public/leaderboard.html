@@ -374,7 +374,7 @@
         // Unconditional player registration check
         async function checkPlayerValidation() {
             try {
-                const res = await fetch('/api/player');
+                const res = await fetch(`/api/player?t=${Date.now()}`);
                 const data = await res.json();
                 if (!data.registered || !data.nickname) {
                     sessionStorage.clear();
@@ -384,6 +384,17 @@
             } catch (e) { }
         }
         checkPlayerValidation();
+
+        // Smart Back Button (only show summary if player has actually played a game)
+        const btnBack = document.getElementById('btn-back-header');
+        if (btnBack) {
+            const hasPlayed = sessionStorage.getItem('lastGameSummary');
+            if (hasPlayed) {
+                btnBack.href = '/game.html?showResult=1';
+            } else {
+                btnBack.href = '/game.html';
+            }
+        }
 
         // Instant Cache Load
         try {

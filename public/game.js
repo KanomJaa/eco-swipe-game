@@ -519,80 +519,11 @@ document.addEventListener('mouseup', () => onEnd());
 instruction.addEventListener('click', startGame);
 instruction.addEventListener('touchend', e => { e.preventDefault(); startGame(); });
 $('btn-replay').addEventListener('click', startGame);
-$('btn-leaderboard').addEventListener('click', () => showLeaderboardOverlay());
+$('btn-leaderboard').addEventListener('click', () => { window.location.href = '/leaderboard.html'; });
 
 if ($('top-widget-btn')) {
-    $('top-widget-btn').addEventListener('click', () => showLeaderboardOverlay());
+    $('top-widget-btn').addEventListener('click', () => { window.location.href = '/leaderboard.html'; });
 }
 
-if ($('lb-close-btn')) {
-    $('lb-close-btn').addEventListener('click', () => hideLeaderboardOverlay());
-}
-
-// ========================================
-// In-page Leaderboard Overlay
-// ========================================
-let lbCache = null;
-
-async function showLeaderboardOverlay() {
-    const overlay = $('lb-overlay');
-    if (!overlay) return;
-    overlay.classList.remove('closing');
-    overlay.style.display = 'block';
-
-    // Show cached data instantly, then refresh in background
-    const podiumEl = $('lb-overlay-podium');
-    if (lbCache) {
-        renderLbPodium(lbCache, podiumEl);
-    }
-
-    try {
-        const res = await fetch('/api/leaderboard');
-        const data = await res.json();
-        lbCache = data.slice(0, 3);
-        renderLbPodium(lbCache, podiumEl);
-    } catch (err) {
-        console.error('Leaderboard fetch error:', err);
-        if (!lbCache) {
-            podiumEl.innerHTML = '<div class="lb-overlay-empty">🧪 ยังไม่มีผู้เล่น...</div>';
-        }
-    }
-}
-
-function renderLbPodium(top3, podiumEl) {
-    if (!top3.length) {
-        podiumEl.innerHTML = '<div class="lb-overlay-empty">🧪 ยังไม่มีผู้เล่น...<br>สแกน QR Code เพื่อเข้าเกม!</div>';
-        return;
-    }
-    const ordered = [];
-    if (top3[1]) ordered.push({ ...top3[1], displayRank: 2 });
-    if (top3[0]) ordered.push({ ...top3[0], displayRank: 1 });
-    if (top3[2]) ordered.push({ ...top3[2], displayRank: 3 });
-
-    podiumEl.innerHTML = ordered.map(p => {
-        const r = p.displayRank;
-        return `<div class="lb-podium-slot rank-${r}">
-            <div class="lb-podium-avatar">
-                <img src="/${p.avatar || 'icons/male_1.png'}" class="lb-podium-avatar-img" alt="${escHtml(p.nickname)}">
-                <span class="lb-podium-badge"><img src="/icons/No${r}.png" class="lb-podium-badge-img" alt="Top ${r}"></span>
-            </div>
-            <div class="lb-podium-name">${escHtml(p.nickname)}</div>
-            <div class="lb-podium-score">${p.score.toLocaleString()}</div>
-            <div class="lb-podium-stand">#${r}</div>
-        </div>`;
-    }).join('');
-}
-
-function hideLeaderboardOverlay() {
-    const overlay = $('lb-overlay');
-    if (!overlay) return;
-    overlay.classList.add('closing');
-    setTimeout(() => {
-        overlay.style.display = 'none';
-        overlay.classList.remove('closing');
-    }, 200);
-}
-
-// Auto show summary if returning from leaderboard (legacy URL support)
+// Auto show summary if returning from leaderboard
 checkAutoShowSummary();
-

@@ -11,6 +11,7 @@
         href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600;700;800&family=Nunito:wght@400;700;800&display=swap"
         rel="stylesheet" />
     <link rel="stylesheet" href="/game.css" />
+    <link rel="prefetch" href="/leaderboard.html" />
 </head>
 
 <body>
@@ -108,26 +109,6 @@
             </div>
             <button class="btn-replay" id="btn-replay">🔄 เล่นอีกครั้ง</button>
             <button class="btn-leaderboard" id="btn-leaderboard">🏆 ดูอันดับ</button>
-        </div>
-    </div>
-
-    <!-- In-page Leaderboard Overlay (no page reload!) -->
-    <div class="lb-overlay" id="lb-overlay" style="display:none;">
-        <div class="lb-overlay-inner">
-            <button class="lb-close-btn" id="lb-close-btn" title="กลับ">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
-                    stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-                    <polyline points="9 22 9 12 15 12 15 22"></polyline>
-                </svg>
-            </button>
-            <div class="lb-overlay-header">
-                <h1 class="lb-overlay-title">🏆 อันดับนักวิทย์</h1>
-                <p class="lb-overlay-sub">ปัดขวาพิทักษ์โลก — Eco-Swipe</p>
-            </div>
-            <div class="lb-overlay-podium" id="lb-overlay-podium">
-                <div class="lb-overlay-loading">กำลังโหลด...</div>
-            </div>
         </div>
     </div>
 

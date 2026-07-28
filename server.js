@@ -43,7 +43,7 @@ mongoose.connection.on('error', () => { isMongoConnected = false; });
 const playerSchema = new mongoose.Schema({
     ip: { type: String, required: true, unique: true },
     nickname: { type: String, required: true },
-    avatar: { type: String, default: 'icons/male 1.png' },
+    avatar: { type: String, default: 'icons/male_1.png' },
     registeredAt: { type: Date, default: Date.now },
     lastSeen: { type: Date, default: Date.now }
 });
@@ -112,7 +112,7 @@ app.get('/api/player', async (req, res) => {
         try {
             const player = await Player.findOne({ ip });
             if (player) {
-                return res.json({ registered: true, nickname: player.nickname, avatar: player.avatar || 'icons/male 1.png', ip });
+                return res.json({ registered: true, nickname: player.nickname, avatar: player.avatar || 'icons/male_1.png', ip });
             }
             return res.json({ registered: false, ip });
         } catch (err) {
@@ -124,7 +124,7 @@ app.get('/api/player', async (req, res) => {
     const data = loadData();
     const player = data.players[ip];
     if (player) {
-        res.json({ registered: true, nickname: player.nickname, avatar: player.avatar || 'icons/male 1.png', ip });
+        res.json({ registered: true, nickname: player.nickname, avatar: player.avatar || 'icons/male_1.png', ip });
     } else {
         res.json({ registered: false, ip });
     }
@@ -140,7 +140,7 @@ app.post('/api/register', async (req, res) => {
     }
 
     const cleanNickname = nickname.trim();
-    const cleanAvatar = avatar || 'icons/male 1.png';
+    const cleanAvatar = avatar || 'icons/male_1.png';
 
     // Always update data.json for local backup
     const data = loadData();
@@ -284,7 +284,7 @@ app.get('/api/leaderboard', async (req, res) => {
             const leaderboard = topScores.map((entry, index) => ({
                 rank: index + 1,
                 nickname: entry.nickname,
-                avatar: playerMap[entry._id] || 'icons/male 1.png',
+                avatar: playerMap[entry._id] || 'icons/male_1.png',
                 score: entry.score,
                 maxCombo: entry.maxCombo,
                 playedAt: entry.playedAt
@@ -311,7 +311,7 @@ app.get('/api/leaderboard', async (req, res) => {
         .map((entry, i) => ({
             rank: i + 1,
             nickname: entry.nickname,
-            avatar: data.players[entry.ip]?.avatar || 'icons/male 1.png',
+            avatar: data.players[entry.ip]?.avatar || 'icons/male_1.png',
             score: entry.score,
             maxCombo: entry.maxCombo,
             playedAt: entry.playedAt,

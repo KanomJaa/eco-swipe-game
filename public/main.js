@@ -88,7 +88,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const rowFemale = document.getElementById('avatar-row-female');
     const btnConfirmAvatar = document.getElementById('btn-confirm-avatar');
 
-    let selectedAvatar = 'icons/male 1.png';
+    let selectedAvatar = 'icons/male_1.png';
     let pendingNickname = '';
 
     // Check if already registered via IP
@@ -98,7 +98,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         if (data.registered && data.nickname) {
             sessionStorage.setItem('playerNickname', data.nickname);
-            sessionStorage.setItem('playerAvatar', data.avatar || 'icons/male 1.png');
+            sessionStorage.setItem('playerAvatar', data.avatar || 'icons/male_1.png');
             // Auto redirect registered player to game
             if (!window.location.search.includes('edit=1')) {
                 window.location.href = '/game.html';
@@ -122,14 +122,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         rowFemale.innerHTML = '';
 
         for (let i = 1; i <= 7; i++) {
-            const path = `icons/male ${i}.png`;
+            const path = `icons/male_${i}.png`;
             const el = createAvatarItem(path);
             if (path === selectedAvatar) el.classList.add('active');
             rowMale.appendChild(el);
         }
 
         for (let i = 1; i <= 7; i++) {
-            const path = `icons/female ${i}.png`;
+            const path = `icons/female_${i}.png`;
             const el = createAvatarItem(path);
             if (path === selectedAvatar) el.classList.add('active');
             rowFemale.appendChild(el);

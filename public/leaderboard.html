@@ -366,7 +366,7 @@
                 const slot = document.createElement('div');
                 slot.className = `podium-slot rank-${r} updating`;
                 slot.innerHTML = `
-          <div class="podium-avatar"><img src="/${p.avatar || 'icons/male 1.png'}" class="podium-avatar-img" alt="${esc(p.nickname)}"><span class="rank-badge"><img src="/icons/No${r}.png" class="lb-rank-badge-img" alt="Top ${r}"></span></div>
+          <div class="podium-avatar"><img src="/${p.avatar || 'icons/male_1.png'}" class="podium-avatar-img" alt="${esc(p.nickname)}"><span class="rank-badge"><img src="/icons/No${r}.png" class="lb-rank-badge-img" alt="Top ${r}"></span></div>
           <div class="podium-name">${esc(p.nickname)}</div>
           <div class="podium-score">${p.score.toLocaleString()}</div>
           <div class="podium-stand">#${r}</div>`;

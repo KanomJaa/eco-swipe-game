@@ -718,6 +718,47 @@ body {
     padding: 4px 0;
 }
 
+.top-widget-footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    margin-top: 6px;
+    padding-top: 5px;
+    border-top: 1px dashed rgba(197, 163, 255, 0.3);
+}
+
+.top-widget-btn {
+    background: rgba(255, 255, 255, 0.85);
+    border: 1px solid rgba(197, 163, 255, 0.5);
+    border-radius: 10px;
+    padding: 3px 8px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-family: 'Kanit', sans-serif;
+    font-size: 0.68rem;
+    font-weight: 600;
+    color: #5c4b82;
+    transition: all 0.25 ease;
+    box-shadow: 0 2px 6px rgba(197, 163, 255, 0.15);
+}
+
+.top-widget-btn:hover,
+.top-widget-btn:active {
+    transform: translateY(-1px) scale(1.05);
+    background: #ffffff;
+    border-color: #ff8ec7;
+    color: #ff4785;
+    box-shadow: 0 4px 12px rgba(255, 142, 199, 0.3);
+}
+
+.top-widget-btn-icon {
+    width: 16px;
+    height: 16px;
+    object-fit: contain;
+}
+
 /* Rank achievement badge on Gameover overlay */
 .gameover-card {
     position: relative;

@@ -385,9 +385,55 @@ async function endGame() {
         subEl.style.display = 'none';
     }
 
+    // Save summary state for restoring when returning from Leaderboard
+    sessionStorage.setItem('lastGameSummary', JSON.stringify({
+        score: state.score,
+        correct: state.correct,
+        wrong: state.wrong,
+        maxCombo: state.maxCombo,
+        newTopRank: submitResult ? submitResult.newTopRank : null
+    }));
+
     gameoverOverlay.style.display = 'flex';
     launchConfetti();
     loadTopWidget();
+}
+
+function checkAutoShowSummary() {
+    if (window.location.search.includes('showResult=1') || window.location.search.includes('showResult=true')) {
+        const saved = sessionStorage.getItem('lastGameSummary');
+        if (saved) {
+            try {
+                const data = JSON.parse(saved);
+                $('final-score').textContent = data.score;
+                $('final-correct').textContent = data.correct;
+                $('final-wrong').textContent = data.wrong;
+                const maxMult = data.maxCombo >= 10 ? 5 : data.maxCombo >= 6 ? 3 : data.maxCombo >= 3 ? 2 : 1;
+                $('final-combo').textContent = `x${maxMult}`;
+
+                const emojiEl = $('gameover-emoji');
+                const subEl = $('gameover-rank-sub');
+                const topBadgeEl = $('gameover-top-badge');
+
+                if (data.newTopRank) {
+                    if (topBadgeEl) {
+                        topBadgeEl.innerHTML = `<img src="/icons/No${data.newTopRank}.png" class="rank-badge-floating-img" alt="Top ${data.newTopRank}">`;
+                        topBadgeEl.style.display = 'block';
+                    }
+                    emojiEl.style.display = 'none';
+                    subEl.textContent = `🏆 ยินดีด้วย! คุณทำลายสถิติใหม่ ติดอันดับ Top ${data.newTopRank}!`;
+                    subEl.style.display = 'block';
+                } else {
+                    if (topBadgeEl) topBadgeEl.style.display = 'none';
+                    emojiEl.textContent = '🎉';
+                    emojiEl.style.display = 'block';
+                    subEl.style.display = 'none';
+                }
+
+                gameoverOverlay.style.display = 'flex';
+            } catch (e) { console.error('Failed to parse summary:', e); }
+        }
+    }
 }
 
 function launchConfetti() {
@@ -465,3 +511,10 @@ instruction.addEventListener('click', startGame);
 instruction.addEventListener('touchend', e => { e.preventDefault(); startGame(); });
 $('btn-replay').addEventListener('click', startGame);
 $('btn-leaderboard').addEventListener('click', () => { window.location.href = '/leaderboard.html'; });
+
+if ($('top-widget-btn')) {
+    $('top-widget-btn').addEventListener('click', () => { window.location.href = '/leaderboard.html'; });
+}
+
+// Auto show summary if returning from leaderboard
+checkAutoShowSummary();

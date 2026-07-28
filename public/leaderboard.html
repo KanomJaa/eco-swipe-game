@@ -314,10 +314,46 @@
                 font-size: 4rem;
             }
         }
+
+        .btn-back-header {
+            position: fixed;
+            top: 16px;
+            left: 20px;
+            z-index: 100;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1.5px solid rgba(255, 255, 255, 0.6);
+            border-radius: 14px;
+            padding: 8px 14px;
+            font-family: 'Kanit', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #2d1b4e;
+            text-decoration: none;
+            box-shadow: 0 4px 16px rgba(197, 163, 255, 0.2);
+            transition: all 0.25s ease;
+            cursor: pointer;
+        }
+
+        .btn-back-header:hover,
+        .btn-back-header:active {
+            transform: translateY(-2px) scale(1.04);
+            background: rgba(255, 255, 255, 0.95);
+            border-color: #ff8ec7;
+            color: #ff4785;
+            box-shadow: 0 6px 20px rgba(255, 142, 199, 0.3);
+        }
     </style>
 </head>
 
 <body>
+    <a href="/game.html?showResult=1" class="btn-back-header" id="btn-back-header">
+        <span>⬅️</span> <span>ย้อนกลับ</span>
+    </a>
     <div class="live-badge"><span class="live-dot"></span><span>LIVE</span></div>
 
     <header class="lb-header">

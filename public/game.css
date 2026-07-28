@@ -721,7 +721,7 @@ body {
 .top-widget-footer {
     display: flex;
     align-items: center;
-    justify-content: flex-start;
+    justify-content: center;
     margin-top: 6px;
     padding-top: 5px;
     border-top: 1px dashed rgba(197, 163, 255, 0.3);

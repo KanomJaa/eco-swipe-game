@@ -437,21 +437,30 @@ function checkAutoShowSummary() {
 }
 
 function launchConfetti() {
-    const colors = ['#ff8ec7', '#c5a3ff', '#87ceeb', '#6dd5a0', '#ffe066', '#ff6b6b', '#ffb347', '#77dd77'];
-    const confettiCount = 80;
+    const colors = ['#ff8ec7', '#c5a3ff', '#87ceeb', '#6dd5a0', '#ffe066', '#ff6b6b'];
+    const confettiCount = 30;
+    const fragment = document.createDocumentFragment();
+    const container = document.createElement('div');
+    container.style.position = 'fixed';
+    container.style.inset = '0';
+    container.style.pointerEvents = 'none';
+    container.style.zIndex = '200';
+    container.style.overflow = 'hidden';
+
     for (let i = 0; i < confettiCount; i++) {
         const el = document.createElement('div');
         el.className = 'confetti-piece';
         el.style.left = Math.random() * 100 + 'vw';
         el.style.background = colors[Math.floor(Math.random() * colors.length)];
-        el.style.width = (Math.random() * 8 + 5) + 'px';
-        el.style.height = (Math.random() * 14 + 8) + 'px';
-        el.style.animationDuration = (Math.random() * 2 + 2) + 's';
-        el.style.animationDelay = (Math.random() * 1.5) + 's';
+        el.style.width = (Math.random() * 6 + 6) + 'px';
+        el.style.height = (Math.random() * 10 + 8) + 'px';
+        el.style.animationDuration = (Math.random() * 1.5 + 2) + 's';
+        el.style.animationDelay = (Math.random() * 0.8) + 's';
         el.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
-        document.body.appendChild(el);
-        setTimeout(() => el.remove(), 5000);
+        container.appendChild(el);
     }
+    document.body.appendChild(container);
+    setTimeout(() => container.remove(), 4500);
 }
 
 // ========================================

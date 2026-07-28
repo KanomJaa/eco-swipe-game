@@ -18,23 +18,36 @@ const renameMap = {
     'female 5.png': 'female_5.png',
     'female 6.png': 'female_6.png',
     'female 7.png': 'female_7.png',
-    'ขวดน้ำ.png': 'water_bottle.png',
-    'แบตเตอรี่.png': 'battery.png',
-    'น้ำยาฟอกขาว.png': 'bleach.png',
-    'สีทาบ้าน.png': 'paint.png',
-    'น้ำมันเครื่อง.png': 'engine_oil.png',
-    'ยาฆ่าแมลง.png': 'pesticide.png',
-    'หมึกพิมพ์.png': 'ink_cartridge.png',
-    'น้ำยาล้างห้องน้ำ.png': 'toilet_cleaner.png',
-    'กาวเรซิน.png': 'resin_glue.png',
-    'แอลกอฮอล์ทำความสะอาด.png': 'alcohol.png'
 };
 
-for (const [oldName, newName] of Object.entries(renameMap)) {
-    const oldPath = path.join(dir, oldName);
-    const newPath = path.join(dir, newName);
-    if (fs.existsSync(oldPath)) {
-        fs.renameSync(oldPath, newPath);
-        console.log(`Renamed ${oldName} -> ${newName}`);
+const keywords = [
+    { key: 'ขวดน้ำ', name: 'water_bottle.png' },
+    { key: 'แบตเตอรี่', name: 'battery.png' },
+    { key: 'ฟอกขาว', name: 'bleach.png' },
+    { key: 'สีทาบ้าน', name: 'paint.png' },
+    { key: 'น้ำมันเครื่อง', name: 'engine_oil.png' },
+    { key: 'ยาฆ่าแมลง', name: 'pesticide.png' },
+    { key: 'หมึกพิมพ์', name: 'ink_cartridge.png' },
+    { key: 'ห้องน้ำ', name: 'toilet_cleaner.png' },
+    { key: 'กาว', name: 'resin_glue.png' },
+    { key: 'แอลกอฮอล์', name: 'alcohol.png' }
+];
+
+const files = fs.readdirSync(dir);
+files.forEach(file => {
+    let newName = null;
+    if (renameMap[file]) {
+        newName = renameMap[file];
+    } else {
+        for (const k of keywords) {
+            if (file.includes(k.key)) {
+                newName = k.name;
+                break;
+            }
+        }
     }
-}
+    if (newName) {
+        fs.renameSync(path.join(dir, file), path.join(dir, newName));
+        console.log(`Renamed: ${file} -> ${newName}`);
+    }
+});

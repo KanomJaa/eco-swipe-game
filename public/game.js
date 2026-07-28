@@ -313,27 +313,44 @@ function startGame() {
 async function loadTopWidget() {
     const listEl = $('top-widget-list');
     if (!listEl) return;
+
+    // Render cache immediately if available
+    try {
+        const cached = localStorage.getItem('eco_lb_cache');
+        if (cached) {
+            const top3 = JSON.parse(cached);
+            if (Array.isArray(top3) && top3.length) {
+                renderTopWidgetList(top3, listEl);
+            }
+        }
+    } catch (e) { }
+
     try {
         const res = await fetch('/api/leaderboard');
         const data = await res.json();
         const top3 = data.slice(0, 3);
-        if (!top3.length) {
-            listEl.innerHTML = '<div class="top-widget-empty">ยังไม่มีอันดับ</div>';
-            return;
-        }
-        listEl.innerHTML = top3.map((player, idx) => {
-            const rank = idx + 1;
-            return `
-                <div class="top-widget-item rank-${rank}">
-                    <img src="/icons/No${rank}.png" class="top-widget-icon" alt="Top ${rank}">
-                    <span class="top-widget-name">${escHtml(player.nickname)}</span>
-                    <span class="top-widget-score">${player.score.toLocaleString()}</span>
-                </div>
-            `;
-        }).join('');
+        localStorage.setItem('eco_lb_cache', JSON.stringify(top3));
+        renderTopWidgetList(top3, listEl);
     } catch (err) {
         console.error('Failed to load top widget:', err);
     }
+}
+
+function renderTopWidgetList(top3, listEl) {
+    if (!top3 || !top3.length) {
+        listEl.innerHTML = '<div class="top-widget-empty">ยังไม่มีอันดับ</div>';
+        return;
+    }
+    listEl.innerHTML = top3.map((player, idx) => {
+        const rank = idx + 1;
+        return `
+            <div class="top-widget-item rank-${rank}">
+                <img src="/icons/No${rank}.png" class="top-widget-icon" alt="Top ${rank}">
+                <span class="top-widget-name">${escHtml(player.nickname)}</span>
+                <span class="top-widget-score">${player.score.toLocaleString()}</span>
+            </div>
+        `;
+    }).join('');
 }
 
 function escHtml(str) {

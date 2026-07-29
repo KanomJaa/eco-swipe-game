@@ -460,30 +460,59 @@ function checkAutoShowSummary() {
 }
 
 function launchConfetti() {
-    const colors = ['#ff8ec7', '#c5a3ff', '#87ceeb', '#6dd5a0', '#ffe066', '#ff6b6b'];
-    const confettiCount = 30;
-    const fragment = document.createDocumentFragment();
-    const container = document.createElement('div');
-    container.style.position = 'fixed';
-    container.style.inset = '0';
-    container.style.pointerEvents = 'none';
-    container.style.zIndex = '200';
-    container.style.overflow = 'hidden';
-
-    for (let i = 0; i < confettiCount; i++) {
-        const el = document.createElement('div');
-        el.className = 'confetti-piece';
-        el.style.left = Math.random() * 100 + 'vw';
-        el.style.background = colors[Math.floor(Math.random() * colors.length)];
-        el.style.width = (Math.random() * 6 + 6) + 'px';
-        el.style.height = (Math.random() * 10 + 8) + 'px';
-        el.style.animationDuration = (Math.random() * 1.5 + 2) + 's';
-        el.style.animationDelay = (Math.random() * 0.8) + 's';
-        el.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
-        container.appendChild(el);
+    let canvas = document.getElementById('confetti-canvas');
+    if (!canvas) {
+        canvas = document.createElement('canvas');
+        canvas.id = 'confetti-canvas';
+        canvas.style.position = 'fixed';
+        canvas.style.inset = '0';
+        canvas.style.pointerEvents = 'none';
+        canvas.style.zIndex = '150';
+        document.body.appendChild(canvas);
     }
-    document.body.appendChild(container);
-    setTimeout(() => container.remove(), 4500);
+    const ctx = canvas.getContext('2d');
+    const width = canvas.width = window.innerWidth;
+    const height = canvas.height = window.innerHeight;
+
+    const colors = ['#ff8ec7', '#c5a3ff', '#87ceeb', '#6dd5a0', '#ffe066', '#ff6b6b'];
+    const particles = [];
+    for (let i = 0; i < 35; i++) {
+        particles.push({
+            x: Math.random() * width,
+            y: Math.random() * -height * 0.5,
+            w: Math.random() * 8 + 6,
+            h: Math.random() * 12 + 8,
+            color: colors[Math.floor(Math.random() * colors.length)],
+            vx: (Math.random() - 0.5) * 2.5,
+            vy: Math.random() * 3.5 + 3,
+            rot: Math.random() * 360,
+            vRot: (Math.random() - 0.5) * 6
+        });
+    }
+
+    let startTime = Date.now();
+    function render() {
+        const elapsed = Date.now() - startTime;
+        if (elapsed > 3200) {
+            ctx.clearRect(0, 0, width, height);
+            canvas.remove();
+            return;
+        }
+        ctx.clearRect(0, 0, width, height);
+        particles.forEach(p => {
+            p.x += p.vx;
+            p.y += p.vy;
+            p.rot += p.vRot;
+            ctx.save();
+            ctx.translate(p.x, p.y);
+            ctx.rotate(p.rot * Math.PI / 180);
+            ctx.fillStyle = p.color;
+            ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+            ctx.restore();
+        });
+        requestAnimationFrame(render);
+    }
+    requestAnimationFrame(render);
 }
 
 // ========================================

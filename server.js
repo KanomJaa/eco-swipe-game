@@ -35,11 +35,16 @@ mongoose.connect(MONGO_URI, {
     console.log('📁 Falling back to local data.json storage mode.');
 });
 
-mongoose.connection.on('connected', () => { isMongoConnected = true; });
+mongoose.connection.on('connected', async () => {
+    isMongoConnected = true;
+    try {
+        await Player.collection.dropIndex('ip_1');
+        console.log('🧹 Cleaned legacy ip_1 index from Mongo');
+    } catch (e) { }
+});
 mongoose.connection.on('disconnected', () => { isMongoConnected = false; });
 mongoose.connection.on('error', () => { isMongoConnected = false; });
 
-// Define Mongoose Schemas & Models
 // Define Mongoose Schemas & Models
 const playerSchema = new mongoose.Schema({
     playerId: { type: String, required: true, unique: true },
@@ -129,7 +134,10 @@ app.get('/api/player', async (req, res) => {
 
     if (isMongoConnected) {
         try {
-            const player = await Player.findOne({ $or: [{ playerId: key }, { ip: key }] });
+            let player = await Player.findOne({ playerId: key });
+            if (!player && key === ip) {
+                player = await Player.findOne({ ip });
+            }
             if (player) {
                 return res.json({ registered: true, nickname: player.nickname, avatar: player.avatar || 'icons/male_1.png', key });
             }
@@ -141,7 +149,7 @@ app.get('/api/player', async (req, res) => {
 
     // Fallback to data.json
     const data = loadData();
-    const player = data.players[key];
+    const player = data.players[key] || (key === ip ? data.players[ip] : null);
     if (player) {
         res.json({ registered: true, nickname: player.nickname, avatar: player.avatar || 'icons/male_1.png', key });
     } else {

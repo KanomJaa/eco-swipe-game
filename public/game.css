@@ -167,6 +167,12 @@ body {
     align-items: center;
     justify-content: center;
     z-index: 50;
+    pointer-events: none;
+}
+
+.item-card,
+.instruction {
+    pointer-events: auto;
 }
 
 /* ===== Instruction ===== */
@@ -747,7 +753,8 @@ body {
     position: fixed;
     top: 85px;
     right: 12px;
-    z-index: 45;
+    z-index: 70;
+    pointer-events: auto;
     background: rgba(255, 255, 255, 0.7);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);

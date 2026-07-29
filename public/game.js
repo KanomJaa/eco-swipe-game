@@ -618,7 +618,8 @@ let drag = { active: false, startX: 0, curX: 0, startTime: 0 };
 const SWIPE_THRESHOLD = 80;
 const VELOCITY_THRESHOLD = 0.3;
 
-function onStart(x) {
+function onStart(x, e) {
+    if (e && e.target && e.target.closest('#top-widget, .top-leaderboard-widget, #top-widget-btn, button, a')) return;
     if (!state.isPlaying || !state.currentItem) return;
     drag = { active: true, startX: x, curX: x, startTime: Date.now() };
 }
@@ -654,10 +655,10 @@ function onEnd() {
     }
 }
 
-document.addEventListener('touchstart', e => onStart(e.touches[0].clientX), { passive: true });
-document.addEventListener('touchmove', e => { e.preventDefault(); onMove(e.touches[0].clientX); }, { passive: false });
+document.addEventListener('touchstart', e => onStart(e.touches[0].clientX, e), { passive: true });
+document.addEventListener('touchmove', e => { if (drag.active) e.preventDefault(); onMove(e.touches[0].clientX); }, { passive: false });
 document.addEventListener('touchend', () => onEnd(), { passive: true });
-document.addEventListener('mousedown', e => onStart(e.clientX));
+document.addEventListener('mousedown', e => onStart(e.clientX, e));
 document.addEventListener('mousemove', e => onMove(e.clientX));
 document.addEventListener('mouseup', () => onEnd());
 

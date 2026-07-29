@@ -544,16 +544,6 @@ instruction.addEventListener('touchend', e => { e.preventDefault(); startGame();
 $('btn-replay').addEventListener('click', startGame);
 $('btn-leaderboard').addEventListener('click', () => { window.location.href = '/leaderboard.html'; });
 
-if ($('btn-change-name')) {
-    $('btn-change-name').addEventListener('click', (e) => {
-        e.stopPropagation();
-        window.location.href = '/?edit=1';
-    });
-}
-if ($('btn-change-name-go')) {
-    $('btn-change-name-go').addEventListener('click', () => { window.location.href = '/?edit=1'; });
-}
-
 if ($('top-widget-btn')) {
     $('top-widget-btn').addEventListener('click', () => { window.location.href = '/leaderboard.html'; });
 }

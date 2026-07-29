@@ -48,7 +48,7 @@ const ITEMS = [
 // ========================================
 const GAME_DURATION = 60;
 const BASE_SCORE = 10;
-const WRONG_PENALTY = -5;
+const WRONG_PENALTY = -100;
 const COMBO_THRESHOLDS = [
     { streak: 10, multiplier: 5 },
     { streak: 6, multiplier: 3 },
@@ -60,7 +60,7 @@ const COMBO_THRESHOLDS = [
 // State
 // ========================================
 let state = {
-    score: 0, combo: 0, maxCombo: 0, correct: 0, wrong: 0,
+    score: 0, combo: 0, maxCombo: 0, correct: 0, wrong: 0, lives: 3,
     timeLeft: GAME_DURATION, isPlaying: false, currentItem: null,
     usedItems: [], timerInterval: null,
 };
@@ -70,6 +70,7 @@ let state = {
 // ========================================
 const $ = (id) => document.getElementById(id);
 const hudScore = $('hud-score');
+const hudLives = $('hud-lives');
 const hudTimer = $('hud-timer');
 const hudCombo = $('hud-combo');
 const timerFill = $('timer-fill');
@@ -242,8 +243,10 @@ function handleSwipe(direction) {
         state.score = Math.max(0, state.score + WRONG_PENALTY);
         state.combo = 0;
         state.wrong++;
+        state.lives--;
         showFeedback('❌');
         showScoreFly(`${WRONG_PENALTY}`, true);
+        if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
     }
 
     itemCard.classList.add(direction === 'left' ? 'exit-left' : 'exit-right');
@@ -251,13 +254,19 @@ function handleSwipe(direction) {
     updateHUD();
     updateStreakDots();
 
-    if (navigator.vibrate) navigator.vibrate(isCorrect ? 30 : [50, 30, 50]);
+    if (state.lives <= 0) {
+        showFeedback('💔');
+        showScoreFly('หัวใจหมด!', true);
+        setTimeout(() => { endGame(); }, 600);
+        return;
+    }
 
     setTimeout(nextItem, 350);
 }
 
 function updateHUD() {
     hudScore.textContent = state.score;
+    if (hudLives) hudLives.textContent = '❤️'.repeat(Math.max(0, state.lives)) + '🖤'.repeat(Math.max(0, 3 - state.lives));
     const mult = getMultiplier();
     hudCombo.textContent = `x${mult}`;
     hudTimer.textContent = state.timeLeft;
@@ -375,10 +384,22 @@ function stopCardTimer() {
 function handleCardTimeout() {
     if (!state.isPlaying) return;
     stopCardTimer();
+    state.score = Math.max(0, state.score + WRONG_PENALTY);
+    state.combo = 0;
+    state.wrong++;
+    state.lives--;
     showFeedback('⏰');
-    showScoreFly('หมดเวลา!', true);
+    showScoreFly('หมดเวลา! -100', true);
     if (navigator.vibrate) navigator.vibrate([150, 50, 150]);
-    setTimeout(() => { endGame(); }, 400);
+    updateHUD();
+    updateStreakDots();
+
+    if (state.lives <= 0) {
+        showFeedback('💔');
+        setTimeout(() => { endGame(); }, 600);
+    } else {
+        setTimeout(nextItem, 450);
+    }
 }
 
 // ========================================
@@ -387,7 +408,7 @@ function handleCardTimeout() {
 function startGame() {
     sessionStorage.removeItem('lastGameSummary');
     state = {
-        score: 0, combo: 0, maxCombo: 0, correct: 0, wrong: 0,
+        score: 0, combo: 0, maxCombo: 0, correct: 0, wrong: 0, lives: 3,
         isPlaying: true, currentItem: null,
         usedItems: shuffleItems(),
     };

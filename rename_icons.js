@@ -22,6 +22,13 @@ const renameMap = {
     'female 5.png': 'female_5.png',
     'female 6.png': 'female_6.png',
     'female 7.png': 'female_7.png',
+    'CD DVD Disc.png': 'cd_disc.png',
+    'Gas Lighter.png': 'gas_lighter.png',
+    'LPG Cooking Gas Cylinder.png': 'gas_tank.png',
+    'Nail Polish Remover.png': 'nail_polish_remover.png',
+    'Plastic Food Tupperware Box.png': 'tupperware_box.png',
+    'Rat Poison Chemicals.png': 'rat_poison.png',
+    'Rubber Car Tire.png': 'car_tire.png',
 };
 
 const keywords = [

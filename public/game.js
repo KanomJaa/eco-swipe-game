@@ -191,10 +191,13 @@ function nextItem() {
     itemCard.className = 'item-card entering'; // Falls from top!
 
     setTimeout(() => { itemCard.classList.remove('entering'); }, 450);
+    startCardTimer();
 }
 
 function handleSwipe(direction) {
     if (!state.isPlaying || !state.currentItem) return;
+
+    stopCardTimer();
 
     const item = state.currentItem;
     const isCorrect =
@@ -205,14 +208,23 @@ function handleSwipe(direction) {
 
     if (isCorrect) {
         const mult = getMultiplier();
-        const points = BASE_SCORE * mult;
+        let points = BASE_SCORE * mult;
+        const pctLeft = state.cardMaxTime > 0 ? (state.cardTimeLeft / state.cardMaxTime) : 0;
+
+        // Speed bonus if swiped within top 30% of card time limit!
+        if (pctLeft >= 0.7) {
+            points += 50;
+            showScoreFly(`+${points} ⚡`, false);
+        } else {
+            showScoreFly(`+${points}`);
+        }
+
         state.score += points;
         state.combo++;
         state.correct++;
         if (state.combo > state.maxCombo) state.maxCombo = state.combo;
 
         showFeedback('✅');
-        showScoreFly(`+${points}`);
 
         // Check for new combo milestone — show dramatic popup!
         const newMult = getMultiplier();
@@ -297,14 +309,69 @@ function showComboPopup(mult) {
 }
 
 // ========================================
-// Timer
+// Per-Card Speed Countdown Timer
 // ========================================
-function startTimer() {
-    state.timerInterval = setInterval(() => {
-        state.timeLeft--;
-        updateHUD();
-        if (state.timeLeft <= 0) endGame();
-    }, 1000);
+function getCardTimeLimit() {
+    if (state.score < 1000) return 3.0;
+    if (state.score < 2500) return 2.5;
+    if (state.score < 5000) return 2.0;
+    if (state.score < 8000) return 1.5;
+    return 1.2;
+}
+
+let cardAnimFrame = null;
+
+function startCardTimer() {
+    stopCardTimer();
+    const limit = getCardTimeLimit();
+    state.cardMaxTime = limit;
+    state.cardStartTime = Date.now();
+    state.cardTimeLeft = limit;
+
+    function tick() {
+        if (!state.isPlaying) return;
+        const elapsed = (Date.now() - state.cardStartTime) / 1000;
+        state.cardTimeLeft = Math.max(0, state.cardMaxTime - elapsed);
+
+        const pct = state.cardTimeLeft / state.cardMaxTime;
+        hudTimer.textContent = `${state.cardTimeLeft.toFixed(1)}s`;
+        timerFill.style.width = `${pct * 100}%`;
+
+        if (pct <= 0.25) {
+            hudTimer.className = 'hud-value danger';
+            timerFill.className = 'timer-fill danger';
+        } else if (pct <= 0.5) {
+            hudTimer.className = 'hud-value warning';
+            timerFill.className = 'timer-fill warning';
+        } else {
+            hudTimer.className = 'hud-value';
+            timerFill.className = 'timer-fill';
+        }
+
+        if (state.cardTimeLeft <= 0) {
+            handleCardTimeout();
+        } else {
+            cardAnimFrame = requestAnimationFrame(tick);
+        }
+    }
+
+    cardAnimFrame = requestAnimationFrame(tick);
+}
+
+function stopCardTimer() {
+    if (cardAnimFrame) {
+        cancelAnimationFrame(cardAnimFrame);
+        cardAnimFrame = null;
+    }
+}
+
+function handleCardTimeout() {
+    if (!state.isPlaying) return;
+    stopCardTimer();
+    showFeedback('⏰');
+    showScoreFly('หมดเวลา!', true);
+    if (navigator.vibrate) navigator.vibrate([150, 50, 150]);
+    setTimeout(() => { endGame(); }, 400);
 }
 
 // ========================================
@@ -314,14 +381,13 @@ function startGame() {
     sessionStorage.removeItem('lastGameSummary');
     state = {
         score: 0, combo: 0, maxCombo: 0, correct: 0, wrong: 0,
-        timeLeft: GAME_DURATION, isPlaying: true, currentItem: null,
-        usedItems: shuffleItems(), timerInterval: null,
+        isPlaying: true, currentItem: null,
+        usedItems: shuffleItems(),
     };
     instruction.style.display = 'none';
     gameoverOverlay.style.display = 'none';
     buildStreakDots();
     updateHUD();
-    startTimer();
     nextItem();
 }
 
@@ -378,7 +444,7 @@ setInterval(loadTopWidget, 10000);
 
 async function endGame() {
     state.isPlaying = false;
-    clearInterval(state.timerInterval);
+    stopCardTimer();
     itemCard.style.display = 'none';
 
     let submitResult = null;

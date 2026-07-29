@@ -40,16 +40,18 @@ mongoose.connection.on('disconnected', () => { isMongoConnected = false; });
 mongoose.connection.on('error', () => { isMongoConnected = false; });
 
 // Define Mongoose Schemas & Models
+// Define Mongoose Schemas & Models
 const playerSchema = new mongoose.Schema({
-    ip: { type: String, required: true, unique: true },
+    playerId: { type: String, required: true, unique: true },
     nickname: { type: String, required: true },
     avatar: { type: String, default: 'icons/male_1.png' },
+    ip: { type: String },
     registeredAt: { type: Date, default: Date.now },
     lastSeen: { type: Date, default: Date.now }
 });
 
 const scoreSchema = new mongoose.Schema({
-    ip: { type: String, required: true },
+    playerId: { type: String, required: true },
     nickname: { type: String, required: true },
     score: { type: Number, required: true },
     maxCombo: { type: Number, default: 0 },
@@ -93,6 +95,14 @@ function getClientIP(req) {
     return req.ip || req.connection?.remoteAddress || 'unknown';
 }
 
+function getPlayerKey(req) {
+    const pid = req.query.playerId || req.body?.playerId;
+    if (pid && typeof pid === 'string' && pid.trim()) {
+        return pid.trim();
+    }
+    return getClientIP(req);
+}
+
 // Trust proxy
 app.set('trust proxy', true);
 
@@ -112,17 +122,18 @@ app.use('/api', (req, res, next) => {
 // API Routes
 // ========================================
 
-// Check if IP is registered
+// Check if Player is registered (via Device Token or IP)
 app.get('/api/player', async (req, res) => {
+    const key = getPlayerKey(req);
     const ip = getClientIP(req);
 
     if (isMongoConnected) {
         try {
-            const player = await Player.findOne({ ip });
+            const player = await Player.findOne({ $or: [{ playerId: key }, { ip: key }] });
             if (player) {
-                return res.json({ registered: true, nickname: player.nickname, avatar: player.avatar || 'icons/male_1.png', ip });
+                return res.json({ registered: true, nickname: player.nickname, avatar: player.avatar || 'icons/male_1.png', key });
             }
-            return res.json({ registered: false, ip });
+            return res.json({ registered: false, key });
         } catch (err) {
             console.error('Mongo Error on /api/player:', err.message);
         }
@@ -130,16 +141,17 @@ app.get('/api/player', async (req, res) => {
 
     // Fallback to data.json
     const data = loadData();
-    const player = data.players[ip];
+    const player = data.players[key];
     if (player) {
-        res.json({ registered: true, nickname: player.nickname, avatar: player.avatar || 'icons/male_1.png', ip });
+        res.json({ registered: true, nickname: player.nickname, avatar: player.avatar || 'icons/male_1.png', key });
     } else {
-        res.json({ registered: false, ip });
+        res.json({ registered: false, key });
     }
 });
 
-// Register nickname & avatar for IP
+// Register nickname & avatar for Player (Device Token or IP)
 app.post('/api/register', async (req, res) => {
+    const key = getPlayerKey(req);
     const ip = getClientIP(req);
     const { nickname, avatar } = req.body;
 
@@ -152,9 +164,11 @@ app.post('/api/register', async (req, res) => {
 
     // Always update data.json for local backup
     const data = loadData();
-    data.players[ip] = {
+    data.players[key] = {
+        playerId: key,
         nickname: cleanNickname,
         avatar: cleanAvatar,
+        ip,
         registeredAt: new Date().toISOString(),
         lastSeen: new Date().toISOString()
     };
@@ -163,8 +177,8 @@ app.post('/api/register', async (req, res) => {
     if (isMongoConnected) {
         try {
             await Player.findOneAndUpdate(
-                { ip },
-                { nickname: cleanNickname, avatar: cleanAvatar, lastSeen: new Date() },
+                { playerId: key },
+                { playerId: key, nickname: cleanNickname, avatar: cleanAvatar, ip, lastSeen: new Date() },
                 { upsert: true, new: true, setDefaultsOnInsert: true }
             );
         } catch (err) {
@@ -172,31 +186,31 @@ app.post('/api/register', async (req, res) => {
         }
     }
 
-    res.json({ success: true, nickname: cleanNickname, avatar: cleanAvatar });
+    res.json({ success: true, nickname: cleanNickname, avatar: cleanAvatar, key });
 });
 
 // Submit score
 app.post('/api/score', async (req, res) => {
-    const ip = getClientIP(req);
+    const key = getPlayerKey(req);
     const { score, combo, correct, wrong } = req.body;
     const currentScore = Math.max(0, Number(score) || 0);
 
     const data = loadData();
-    const filePlayer = data.players[ip];
+    const filePlayer = data.players[key];
 
     if (isMongoConnected) {
         try {
-            const player = await Player.findOne({ ip });
+            const player = await Player.findOne({ playerId: key });
             if (player) {
                 player.lastSeen = new Date();
                 await player.save();
 
-                const playerScores = await Score.find({ ip });
+                const playerScores = await Score.find({ playerId: key });
                 const prevBestScore = playerScores.length > 0 ? Math.max(...playerScores.map(s => s.score)) : -1;
                 const isNewPersonalBest = currentScore >= prevBestScore;
 
                 await Score.create({
-                    ip,
+                    playerId: key,
                     nickname: player.nickname,
                     score: currentScore,
                     maxCombo: combo || 0,
@@ -209,11 +223,11 @@ app.post('/api/score', async (req, res) => {
                 if (currentScore > 0 && isNewPersonalBest) {
                     const allBestScores = await Score.aggregate([
                         { $sort: { score: -1 } },
-                        { $group: { _id: '$ip', bestScore: { $first: '$score' } } },
+                        { $group: { _id: '$playerId', bestScore: { $first: '$score' } } },
                         { $sort: { bestScore: -1 } }
                     ]);
 
-                    const rank = allBestScores.findIndex(entry => entry._id === ip) + 1;
+                    const rank = allBestScores.findIndex(entry => entry._id === key) + 1;
                     if (rank >= 1 && rank <= 3) {
                         newTopRank = rank;
                     }
@@ -232,12 +246,12 @@ app.post('/api/score', async (req, res) => {
     }
 
     filePlayer.lastSeen = new Date().toISOString();
-    const playerScores = data.scores.filter((s) => s.ip === ip);
+    const playerScores = data.scores.filter((s) => (s.playerId || s.ip) === key);
     const prevBestScore = playerScores.length > 0 ? Math.max(...playerScores.map((s) => s.score)) : -1;
     const isNewPersonalBest = currentScore >= prevBestScore;
 
     data.scores.push({
-        ip,
+        playerId: key,
         nickname: filePlayer.nickname,
         score: currentScore,
         maxCombo: combo || 0,
@@ -251,12 +265,13 @@ app.post('/api/score', async (req, res) => {
     if (currentScore > 0 && isNewPersonalBest) {
         const bestScores = {};
         data.scores.forEach((entry) => {
-            if (!bestScores[entry.ip] || entry.score > bestScores[entry.ip].score) {
-                bestScores[entry.ip] = entry;
+            const pKey = entry.playerId || entry.ip;
+            if (!bestScores[pKey] || entry.score > bestScores[pKey].score) {
+                bestScores[pKey] = entry;
             }
         });
         const leaderboard = Object.values(bestScores).sort((a, b) => b.score - a.score);
-        const rank = leaderboard.findIndex((entry) => entry.ip === ip) + 1;
+        const rank = leaderboard.findIndex((entry) => (entry.playerId || entry.ip) === key) + 1;
         if (rank >= 1 && rank <= 3) {
             newTopRank = rank;
         }
@@ -273,7 +288,7 @@ app.get('/api/leaderboard', async (req, res) => {
                 { $sort: { score: -1 } },
                 {
                     $group: {
-                        _id: '$ip',
+                        _id: '$playerId',
                         nickname: { $first: '$nickname' },
                         score: { $first: '$score' },
                         maxCombo: { $first: '$maxCombo' },
@@ -284,10 +299,10 @@ app.get('/api/leaderboard', async (req, res) => {
                 { $limit: 10 }
             ]);
 
-            const ips = topScores.map(item => item._id);
-            const players = await Player.find({ ip: { $in: ips } });
+            const pKeys = topScores.map(item => item._id);
+            const players = await Player.find({ playerId: { $in: pKeys } });
             const playerMap = {};
-            players.forEach(p => { playerMap[p.ip] = p.avatar; });
+            players.forEach(p => { playerMap[p.playerId] = p.avatar; });
 
             const leaderboard = topScores.map((entry, index) => ({
                 rank: index + 1,
@@ -308,22 +323,26 @@ app.get('/api/leaderboard', async (req, res) => {
     const data = loadData();
     const bestScores = {};
     data.scores.forEach((entry) => {
-        if (!bestScores[entry.ip] || entry.score > bestScores[entry.ip].score) {
-            bestScores[entry.ip] = entry;
+        const pKey = entry.playerId || entry.ip;
+        if (!bestScores[pKey] || entry.score > bestScores[pKey].score) {
+            bestScores[pKey] = entry;
         }
     });
 
     const leaderboard = Object.values(bestScores)
         .sort((a, b) => b.score - a.score)
         .slice(0, 10)
-        .map((entry, i) => ({
-            rank: i + 1,
-            nickname: entry.nickname,
-            avatar: data.players[entry.ip]?.avatar || 'icons/male_1.png',
-            score: entry.score,
-            maxCombo: entry.maxCombo,
-            playedAt: entry.playedAt,
-        }));
+        .map((entry, i) => {
+            const pKey = entry.playerId || entry.ip;
+            return {
+                rank: i + 1,
+                nickname: entry.nickname,
+                avatar: data.players[pKey]?.avatar || 'icons/male_1.png',
+                score: entry.score,
+                maxCombo: entry.maxCombo,
+                playedAt: entry.playedAt,
+            };
+        });
 
     res.json(leaderboard);
 });

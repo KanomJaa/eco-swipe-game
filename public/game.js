@@ -372,7 +372,7 @@ async function endGame() {
         const res = await fetch('/api/score', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ score: state.score, combo: state.maxCombo, correct: state.correct, wrong: state.wrong }),
+            body: JSON.stringify({ playerId: getPlayerId(), score: state.score, combo: state.maxCombo, correct: state.correct, wrong: state.wrong }),
         });
         submitResult = await res.json();
         if (submitResult && submitResult.error) {
@@ -580,9 +580,18 @@ if ($('top-widget-btn')) {
 // ========================================
 // Player Verification & Redirect
 // ========================================
+function getPlayerId() {
+    let pid = localStorage.getItem('eco_player_id');
+    if (!pid) {
+        pid = 'p_' + Math.random().toString(36).substring(2, 10) + '_' + Date.now().toString(36);
+        localStorage.setItem('eco_player_id', pid);
+    }
+    return pid;
+}
+
 async function checkPlayerValidation() {
     try {
-        const res = await fetch(`/api/player?t=${Date.now()}`);
+        const res = await fetch(`/api/player?playerId=${getPlayerId()}&t=${Date.now()}`);
         const data = await res.json();
         if (!data.registered || !data.nickname) {
             sessionStorage.clear();

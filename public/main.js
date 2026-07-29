@@ -91,9 +91,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     let selectedAvatar = 'icons/male_1.png';
     let pendingNickname = '';
 
-    // Check if already registered via IP
+    function getPlayerId() {
+        let pid = localStorage.getItem('eco_player_id');
+        if (!pid) {
+            pid = 'p_' + Math.random().toString(36).substring(2, 10) + '_' + Date.now().toString(36);
+            localStorage.setItem('eco_player_id', pid);
+        }
+        return pid;
+    }
+
+    // Check if already registered via Device Token
     try {
-        const res = await fetch(`/api/player?t=${Date.now()}`);
+        const res = await fetch(`/api/player?playerId=${getPlayerId()}&t=${Date.now()}`);
         const data = await res.json();
 
         if (data.registered && data.nickname) {
@@ -191,7 +200,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const res = await fetch('/api/register', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ nickname: pendingNickname, avatar: selectedAvatar }),
+                body: JSON.stringify({ playerId: getPlayerId(), nickname: pendingNickname, avatar: selectedAvatar }),
             });
             const data = await res.json();
 

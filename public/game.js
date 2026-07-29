@@ -139,17 +139,19 @@ function updateStreakDots() {
         dot.textContent = '';
 
         if (i < state.combo) {
+            dot.textContent = '🔥';
             if (i === 9) {
-                // 10th dot (x5 MAX Multiplier flame)
+                // Dot 10 (x5 MAX Multiplier - Giant flame with white border ring)
                 dot.className = 'streak-dot active flame-x5';
-                dot.textContent = '🔥';
-            } else if (i >= 2) {
-                // 3rd dot and up (flame dots)
-                dot.className = 'streak-dot active flame-active';
-                dot.textContent = '🔥';
+            } else if (i === 5) {
+                // Dot 6 (x3 Multiplier Milestone - Larger flame)
+                dot.className = 'streak-dot active flame-x3';
+            } else if (i === 2) {
+                // Dot 3 (x2 Multiplier Milestone - Medium-large flame)
+                dot.className = 'streak-dot active flame-x2';
             } else {
-                // Normal active dot
-                dot.className = 'streak-dot active';
+                // Normal active flame dot
+                dot.className = 'streak-dot active flame-normal';
             }
         }
     });

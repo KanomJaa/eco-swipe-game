@@ -384,22 +384,10 @@ function stopCardTimer() {
 function handleCardTimeout() {
     if (!state.isPlaying) return;
     stopCardTimer();
-    state.score = Math.max(0, state.score + WRONG_PENALTY);
-    state.combo = 0;
-    state.wrong++;
-    state.lives--;
     showFeedback('⏰');
-    showScoreFly('หมดเวลา! -100', true);
+    showScoreFly('หมดเวลา!', true);
     if (navigator.vibrate) navigator.vibrate([150, 50, 150]);
-    updateHUD();
-    updateStreakDots();
-
-    if (state.lives <= 0) {
-        showFeedback('💔');
-        setTimeout(() => { endGame(); }, 600);
-    } else {
-        setTimeout(nextItem, 450);
-    }
+    setTimeout(() => { endGame(); }, 400);
 }
 
 // ========================================

@@ -170,8 +170,33 @@ app.post('/api/register', async (req, res) => {
     const cleanNickname = nickname.trim();
     const cleanAvatar = avatar || 'icons/male_1.png';
 
-    // Always update data.json for local backup
     const data = loadData();
+
+    // Check for duplicate nickname in MongoDB or data.json
+    if (isMongoConnected) {
+        try {
+            const escapedName = cleanNickname.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            const existingPlayer = await Player.findOne({
+                nickname: { $regex: new RegExp(`^${escapedName}$`, 'i') },
+                playerId: { $ne: key }
+            });
+            if (existingPlayer) {
+                return res.status(400).json({ error: 'ชื่อนี้มีผู้ใช้งานแล้ว กรุณาใช้ชื่ออื่น 🧪' });
+            }
+        } catch (err) {
+            console.error('Mongo duplicate check error:', err.message);
+        }
+    }
+
+    // Check data.json fallback
+    const isDuplicate = Object.values(data.players || {}).some(p =>
+        p.playerId !== key && p.nickname && p.nickname.toLowerCase() === cleanNickname.toLowerCase()
+    );
+    if (isDuplicate) {
+        return res.status(400).json({ error: 'ชื่อนี้มีผู้ใช้งานแล้ว กรุณาใช้ชื่ออื่น 🧪' });
+    }
+
+    // Always update data.json for local backup
     data.players[key] = {
         playerId: key,
         nickname: cleanNickname,

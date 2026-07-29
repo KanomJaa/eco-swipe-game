@@ -136,9 +136,21 @@ function updateStreakDots() {
     const dots = streakBar.querySelectorAll('.streak-dot');
     dots.forEach((dot, i) => {
         dot.className = 'streak-dot';
+        dot.textContent = '';
+
         if (i < state.combo) {
-            dot.classList.add('active');
-            if (state.combo >= 10) dot.classList.add('gold');
+            if (i === 9) {
+                // 10th dot (x5 MAX Multiplier flame)
+                dot.className = 'streak-dot active flame-x5';
+                dot.textContent = '🔥';
+            } else if (i >= 2) {
+                // 3rd dot and up (flame dots)
+                dot.className = 'streak-dot active flame-active';
+                dot.textContent = '🔥';
+            } else {
+                // Normal active dot
+                dot.className = 'streak-dot active';
+            }
         }
     });
 }
@@ -242,9 +254,9 @@ function updateHUD() {
     else { hudTimer.className = 'hud-value'; timerFill.className = 'timer-fill'; }
 
     // Combo color
-    if (mult >= 5) hudCombo.style.color = '#ff6baf';
-    else if (mult >= 3) hudCombo.style.color = '#c5a3ff';
-    else if (mult >= 2) hudCombo.style.color = '#87ceeb';
+    if (mult >= 5) hudCombo.style.color = '#ff4500';
+    else if (mult >= 3) hudCombo.style.color = '#ff8c00';
+    else if (mult >= 2) hudCombo.style.color = '#ff8ec7';
     else hudCombo.style.color = '#2d1b4e';
 }
 
@@ -269,15 +281,15 @@ function showComboPopup(mult) {
     const messages = {
         2: { text: '🔥 x2 คอมโบ!', sub: 'เก่งมาก! ได้คะแนน 2 เท่า!' },
         3: { text: '⚡ x3 คอมโบ!', sub: 'สุดยอด! ได้คะแนน 3 เท่า!' },
-        5: { text: '💥 x5 ULTRA!', sub: 'เทพ!! คะแนน 5 เท่า!!!' },
+        5: { text: '🔥💥 x5 ULTRA FIRE! 💥🔥', sub: 'เทพมาก!! คะแนน 5 เท่าสูงสุด!!!' },
     };
     const msg = messages[mult] || { text: `🔥 x${mult}!`, sub: 'คอมโบ!' };
 
     comboText.textContent = msg.text;
     comboSub.textContent = msg.sub;
-    comboPopup.className = 'combo-popup show';
+    comboPopup.className = `combo-popup show ${mult >= 5 ? 'ultra-fire' : ''}`;
 
-    if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+    if (navigator.vibrate) navigator.vibrate([100, 50, 100, 50, 150]);
 
     setTimeout(() => { comboPopup.className = 'combo-popup'; }, 1200);
 }

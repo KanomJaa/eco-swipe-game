@@ -370,10 +370,30 @@ body {
 
 .combo-inner {
     padding: 20px 40px;
-    background: linear-gradient(135deg, rgba(255, 142, 199, 0.9), rgba(197, 163, 255, 0.9));
+    background: linear-gradient(135deg, rgba(255, 142, 199, 0.95), rgba(197, 163, 255, 0.95));
     border-radius: 24px;
-    border: 3px solid rgba(255, 255, 255, 0.6);
+    border: 3px solid rgba(255, 255, 255, 0.8);
     box-shadow: 0 0 60px rgba(255, 142, 199, 0.5), 0 0 120px rgba(197, 163, 255, 0.3);
+    transition: all 0.3s ease;
+}
+
+.combo-popup.ultra-fire .combo-inner {
+    background: linear-gradient(135deg, #ff0055, #ff4500, #ff8c00, #ffe066);
+    border-color: #ffffff;
+    box-shadow: 0 0 40px #ff4500, 0 0 80px #ff0055, 0 0 120px #ffe066;
+    animation: fieryPulse 0.4s ease-in-out infinite alternate;
+}
+
+@keyframes fieryPulse {
+    from {
+        transform: scale(1);
+        box-shadow: 0 0 30px #ff4500, 0 0 60px #ff0055;
+    }
+
+    to {
+        transform: scale(1.08);
+        box-shadow: 0 0 60px #ff4500, 0 0 100px #ffe066;
+    }
 }
 
 .combo-text {
@@ -459,30 +479,72 @@ body {
     transform: translateX(-50%);
     z-index: 40;
     display: flex;
-    gap: 4px;
+    gap: 6px;
     align-items: center;
 }
 
 .streak-dot {
-    width: 10px;
-    height: 10px;
+    width: 12px;
+    height: 12px;
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.3);
-    border: 1.5px solid rgba(255, 255, 255, 0.4);
-    transition: all 0.3s ease;
+    background: rgba(255, 255, 255, 0.35);
+    border: 1.5px solid rgba(255, 255, 255, 0.5);
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.65rem;
+    line-height: 1;
 }
 
 .streak-dot.active {
     background: #ff8ec7;
     border-color: #ff8ec7;
-    box-shadow: 0 0 8px rgba(255, 142, 199, 0.5);
+    box-shadow: 0 0 8px rgba(255, 142, 199, 0.6);
     transform: scale(1.2);
 }
 
-.streak-dot.gold {
-    background: #ffe066;
+.streak-dot.flame-active {
+    background: linear-gradient(135deg, #ff4500, #ff8c00);
     border-color: #ffe066;
-    box-shadow: 0 0 8px rgba(255, 224, 102, 0.5);
+    box-shadow: 0 0 10px rgba(255, 69, 0, 0.8), 0 0 20px rgba(255, 140, 0, 0.5);
+    transform: scale(1.35);
+    animation: flameDotPulse 0.6s ease-in-out infinite alternate;
+}
+
+.streak-dot.flame-x5 {
+    width: 16px;
+    height: 16px;
+    background: linear-gradient(135deg, #ff0055, #ff4500, #ffe066);
+    border-color: #ffffff;
+    box-shadow: 0 0 14px #ff4500, 0 0 28px #ff8c00;
+    transform: scale(1.55);
+    animation: flameX5Pulse 0.4s ease-in-out infinite alternate;
+    font-size: 0.85rem;
+}
+
+@keyframes flameDotPulse {
+    from {
+        box-shadow: 0 0 8px rgba(255, 69, 0, 0.8), 0 0 16px rgba(255, 140, 0, 0.5);
+        transform: scale(1.3);
+    }
+
+    to {
+        box-shadow: 0 0 14px rgba(255, 69, 0, 1), 0 0 24px rgba(255, 224, 102, 0.8);
+        transform: scale(1.45);
+    }
+}
+
+@keyframes flameX5Pulse {
+    from {
+        box-shadow: 0 0 12px #ff4500, 0 0 24px #ff8c00;
+        transform: scale(1.5);
+    }
+
+    to {
+        box-shadow: 0 0 22px #ff0055, 0 0 36px #ffe066;
+        transform: scale(1.7);
+    }
 }
 
 /* ===== Game Over ===== */

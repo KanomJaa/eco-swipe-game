@@ -102,7 +102,7 @@ body {
     width: 100%;
     background: linear-gradient(90deg, #ff8ec7, #c5a3ff, #87ceeb);
     border-radius: 3px;
-    transition: width 1s linear;
+    will-change: width;
 }
 
 .timer-fill.warning {
@@ -373,26 +373,25 @@ body {
     background: linear-gradient(135deg, rgba(255, 142, 199, 0.95), rgba(197, 163, 255, 0.95));
     border-radius: 24px;
     border: 3px solid rgba(255, 255, 255, 0.8);
-    box-shadow: 0 0 60px rgba(255, 142, 199, 0.5), 0 0 120px rgba(197, 163, 255, 0.3);
-    transition: all 0.3s ease;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    will-change: transform, opacity;
+    transform: translate3d(0, 0, 0);
 }
 
 .combo-popup.ultra-fire .combo-inner {
-    background: linear-gradient(135deg, #ff0055, #ff4500, #ff8c00, #ffe066);
+    background: linear-gradient(135deg, #ff0055, #ff4500, #ff8c00);
     border-color: #ffffff;
-    box-shadow: 0 0 40px #ff4500, 0 0 80px #ff0055, 0 0 120px #ffe066;
+    box-shadow: 0 0 25px rgba(255, 69, 0, 0.7);
     animation: fieryPulse 0.4s ease-in-out infinite alternate;
 }
 
 @keyframes fieryPulse {
     from {
-        transform: scale(1);
-        box-shadow: 0 0 30px #ff4500, 0 0 60px #ff0055;
+        transform: scale(1) translate3d(0, 0, 0);
     }
 
     to {
-        transform: scale(1.08);
-        box-shadow: 0 0 60px #ff4500, 0 0 100px #ffe066;
+        transform: scale(1.05) translate3d(0, 0, 0);
     }
 }
 

@@ -15,55 +15,52 @@ export default function HUD({ score, combo, lives, cardTimeLeft, cardMaxTime }) 
     : 'text-white/60';
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-40 px-3 pt-2 pb-1 safe-top">
-      {/* Row 1: Lives (left) — space for TopWidget (right) */}
-      <div className="flex items-center justify-between max-w-lg mx-auto mb-1.5">
-        <div className="flex gap-0.5">
+    <header className="fixed top-0 left-0 right-0 z-40 px-2 pt-2 pb-1 safe-top">
+      {/* Single row: Lives | Score | Timer | Combo — TopWidget is separate but row leaves space via pr */}
+      <div className="flex items-center gap-1.5 max-w-lg mx-auto pr-[72px]">
+        {/* Lives */}
+        <div className="flex gap-0.5 shrink-0 mr-1">
           {[0, 1, 2].map(i => (
-            <motion.span
+            <span
               key={i}
-              animate={i >= lives ? { scale: 0.7, opacity: 0.3 } : { scale: 1, opacity: 1 }}
-              transition={{ duration: 0.15 }}
-              className="text-base leading-none"
+              className={`text-sm leading-none transition-opacity duration-150 ${i >= lives ? 'opacity-30 scale-75 inline-block' : ''}`}
             >
               {i < lives ? '❤️' : '🖤'}
-            </motion.span>
+            </span>
           ))}
         </div>
-        {/* Spacer — TopWidget renders separately at top-right */}
-        <div className="w-20" />
-      </div>
 
-      {/* Row 2: Score | Timer | Combo */}
-      <div className="flex items-center justify-between gap-2 max-w-lg mx-auto">
-        <div className="glass px-3 py-1.5 text-center flex-1 min-w-0">
-          <div className="text-[9px] uppercase tracking-wider text-white/40">Score</div>
+        {/* Score */}
+        <div className="glass px-2 py-1.5 text-center flex-1 min-w-0 !rounded-xl">
+          <div className="text-[8px] uppercase tracking-wider text-white/40">Score</div>
           <motion.div
             key={score}
-            initial={{ scale: 1.3 }}
+            initial={{ scale: 1.2 }}
             animate={{ scale: 1 }}
-            transition={{ duration: 0.15 }}
-            className="text-lg font-nunito font-black text-gradient leading-tight"
+            transition={{ duration: 0.12 }}
+            className="text-base font-nunito font-black text-gradient leading-tight"
           >
             {score}
           </motion.div>
         </div>
 
-        <div className="glass px-3 py-1.5 text-center flex-1 min-w-0">
-          <div className="text-[9px] uppercase tracking-wider text-white/40">Timer</div>
-          <div className={`text-lg font-nunito font-black leading-tight ${pct <= 0.25 ? 'text-red-400' : pct <= 0.5 ? 'text-amber-400' : 'text-white'}`}>
+        {/* Timer */}
+        <div className="glass px-2 py-1.5 text-center flex-1 min-w-0 !rounded-xl">
+          <div className="text-[8px] uppercase tracking-wider text-white/40">Timer</div>
+          <div className={`text-base font-nunito font-black leading-tight ${pct <= 0.25 ? 'text-red-400' : pct <= 0.5 ? 'text-amber-400' : 'text-white'}`}>
             {cardTimeLeft.toFixed(1)}s
           </div>
         </div>
 
-        <div className="glass px-3 py-1.5 text-center flex-1 min-w-0">
-          <div className="text-[9px] uppercase tracking-wider text-white/40">Combo</div>
+        {/* Combo */}
+        <div className="glass px-2 py-1.5 text-center flex-1 min-w-0 !rounded-xl">
+          <div className="text-[8px] uppercase tracking-wider text-white/40">Combo</div>
           <motion.div
             key={mult}
-            initial={{ scale: 1.3 }}
+            initial={{ scale: 1.2 }}
             animate={{ scale: 1 }}
-            transition={{ duration: 0.15 }}
-            className={`text-lg font-nunito font-black leading-tight ${comboColor}`}
+            transition={{ duration: 0.12 }}
+            className={`text-base font-nunito font-black leading-tight ${comboColor}`}
           >
             x{mult}
           </motion.div>

@@ -26,8 +26,7 @@ export default function Game() {
   const [lives, setLives] = useState(3);
   const [currentItem, setCurrentItem] = useState(null);
   const [cardKey, setCardKey] = useState(0);
-  const [feedback, setFeedback] = useState(null);
-  const [scoreFly, setScoreFly] = useState(null);
+  const [toast, setToast] = useState(null);
   const [comboPopup, setComboPopup] = useState({ show: false, mult: 1 });
   const [cardTimeLeft, setCardTimeLeft] = useState(3);
   const [cardMaxTime, setCardMaxTime] = useState(3);
@@ -101,8 +100,7 @@ export default function Game() {
 
       if (left <= 0) {
         // Timeout
-        showFeedbackFn('⏰');
-        showScoreFlyFn('หมดเวลา!', true);
+        showToast('timeout', 'หมดเวลา!');
         setTimeout(() => endGame(), 400);
         return;
       }
@@ -155,8 +153,7 @@ export default function Game() {
       scoreRef.current = newScore;
       comboRef.current = newCombo;
 
-      showFeedbackFn('✅');
-      showScoreFlyFn(pctLeft >= 0.7 ? `+${points} ⚡` : `+${points}`, false);
+      showToast('correct', pctLeft >= 0.7 ? `+${points} ⚡` : `+${points}`);
 
       const newMult = getMultiplier(newCombo);
       if (newMult > prevMult) {
@@ -176,12 +173,11 @@ export default function Game() {
       comboRef.current = 0;
       livesRef.current = newLives;
 
-      showFeedbackFn('❌');
-      showScoreFlyFn(`${GAME_CONSTANTS.WRONG_PENALTY}`, true);
+      showToast('wrong', `${GAME_CONSTANTS.WRONG_PENALTY}`);
       if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
 
       if (newLives <= 0) {
-        showFeedbackFn('💔');
+        showToast('wrong', '💔 หมดหัวใจ!');
         setTimeout(() => endGame(), 600);
         return;
       }
@@ -222,14 +218,9 @@ export default function Game() {
     }
   }
 
-  function showFeedbackFn(emoji) {
-    setFeedback(emoji);
-    setTimeout(() => setFeedback(null), 600);
-  }
-
-  function showScoreFlyFn(text, isNeg) {
-    setScoreFly({ text, isNeg, key: Date.now() });
-    setTimeout(() => setScoreFly(null), 800);
+  function showToast(type, text) {
+    setToast({ type, text, key: Date.now() });
+    setTimeout(() => setToast(null), 900);
   }
 
   if (!verified) {
@@ -285,23 +276,56 @@ export default function Game() {
       {/* Streak Dots */}
       {gameState === 'playing' && <StreakDots combo={combo} />}
 
-      {/* Combined Feedback + Score */}
+      {/* Feedback Toast */}
       <AnimatePresence>
-        {(feedback || scoreFly) && (
+        {toast && (
           <motion.div
-            key={scoreFly?.key || feedback}
-            initial={{ opacity: 0, scale: 1.5 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, y: -40 }}
-            transition={{ duration: 0.6 }}
-            className="fixed top-1/3 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center gap-1 pointer-events-none"
+            key={toast.key}
+            initial={{ opacity: 0, scale: 0.6, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.8, y: -30 }}
+            transition={{ duration: 0.35, ease: 'easeOut' }}
+            className="fixed top-[30%] left-1/2 -translate-x-1/2 z-50 pointer-events-none"
           >
-            {feedback && <span className="text-5xl">{feedback}</span>}
-            {scoreFly && (
-              <span className={`text-xl font-black ${scoreFly.isNeg ? 'text-red-400' : 'text-emerald-400'}`}>
-                {scoreFly.text}
-              </span>
-            )}
+            <div className={`px-6 py-3 rounded-2xl border backdrop-blur-sm flex items-center gap-3 shadow-lg ${
+              toast.type === 'correct'
+                ? 'bg-emerald-500/20 border-emerald-400/30 shadow-emerald-500/20'
+                : toast.type === 'wrong'
+                ? 'bg-red-500/20 border-red-400/30 shadow-red-500/20'
+                : 'bg-amber-500/20 border-amber-400/30 shadow-amber-500/20'
+            }`}>
+              {/* Icon */}
+              <div className={`w-10 h-10 rounded-full flex items-center justify-center text-lg font-black ${
+                toast.type === 'correct'
+                  ? 'bg-emerald-500/30 text-emerald-300'
+                  : toast.type === 'wrong'
+                  ? 'bg-red-500/30 text-red-300'
+                  : 'bg-amber-500/30 text-amber-300'
+              }`}>
+                {toast.type === 'correct' ? '✓' : toast.type === 'wrong' ? '✗' : '⏰'}
+              </div>
+              {/* Text */}
+              <div className="flex flex-col">
+                <span className={`text-xs font-bold ${
+                  toast.type === 'correct'
+                    ? 'text-emerald-300'
+                    : toast.type === 'wrong'
+                    ? 'text-red-300'
+                    : 'text-amber-300'
+                }`}>
+                  {toast.type === 'correct' ? 'ถูกต้อง!' : toast.type === 'wrong' ? 'ผิด!' : 'หมดเวลา!'}
+                </span>
+                <span className={`text-lg font-black ${
+                  toast.type === 'correct'
+                    ? 'text-emerald-400'
+                    : toast.type === 'wrong'
+                    ? 'text-red-400'
+                    : 'text-amber-400'
+                }`}>
+                  {toast.text}
+                </span>
+              </div>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>

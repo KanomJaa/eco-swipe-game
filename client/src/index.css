@@ -9,41 +9,72 @@
   -webkit-tap-highlight-color: transparent;
 }
 
+html, body {
+  overflow-x: hidden;
+  overscroll-behavior: none;
+  -webkit-overflow-scrolling: touch;
+}
+
 body {
   min-height: 100vh;
   min-height: 100dvh;
   background: linear-gradient(135deg, #0c0a1d 0%, #1a0f3c 40%, #0d1f3c 70%, #0a1a2e 100%);
   background-attachment: fixed;
-  overscroll-behavior: none;
+  touch-action: manipulation;
+}
+
+/* Safe area for notched phones */
+.safe-top {
+  padding-top: env(safe-area-inset-top, 0px);
 }
 
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 4px;
 }
 ::-webkit-scrollbar-track {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
   background: rgba(139, 92, 246, 0.3);
-  border-radius: 3px;
+  border-radius: 2px;
 }
 
-/* Glass card utility */
 @layer components {
+  /* Glass - lightweight on mobile (no blur) */
   .glass {
-    @apply bg-white/[0.06] backdrop-blur-xl border border-white/10 rounded-3xl;
+    @apply bg-white/[0.07] border border-white/10 rounded-2xl;
   }
+
+  /* Only use blur on devices that can handle it */
+  @supports (backdrop-filter: blur(8px)) {
+    @media (min-width: 640px) {
+      .glass {
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+      }
+    }
+  }
+
   .glass-strong {
-    @apply bg-white/[0.12] backdrop-blur-2xl border border-white/15 rounded-3xl;
+    @apply bg-white/[0.1] border border-white/15 rounded-3xl;
   }
+  @supports (backdrop-filter: blur(12px)) {
+    @media (min-width: 640px) {
+      .glass-strong {
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+      }
+    }
+  }
+
   .glow-violet {
-    box-shadow: 0 0 30px rgba(139, 92, 246, 0.15), 0 0 60px rgba(139, 92, 246, 0.05);
+    box-shadow: 0 0 25px rgba(139, 92, 246, 0.12);
   }
   .glow-emerald {
-    box-shadow: 0 0 30px rgba(16, 185, 129, 0.2), 0 0 60px rgba(16, 185, 129, 0.05);
+    box-shadow: 0 0 20px rgba(16, 185, 129, 0.15);
   }
   .glow-pink {
-    box-shadow: 0 0 30px rgba(236, 72, 153, 0.2), 0 0 60px rgba(236, 72, 153, 0.05);
+    box-shadow: 0 0 20px rgba(236, 72, 153, 0.15);
   }
   .text-gradient {
     @apply bg-clip-text text-transparent bg-gradient-to-r from-violet-400 via-pink-400 to-cyan-400;
@@ -53,10 +84,9 @@ body {
   }
   .btn-gradient {
     @apply bg-gradient-to-r from-violet-600 via-purple-600 to-pink-600
-           hover:from-violet-500 hover:via-purple-500 hover:to-pink-500
            text-white font-bold rounded-2xl px-8 py-4
-           transition-all duration-300
-           shadow-lg shadow-purple-500/25 hover:shadow-purple-500/40
-           hover:scale-[1.02] active:scale-95;
+           transition-all duration-200
+           shadow-lg shadow-purple-500/20
+           active:scale-95;
   }
 }

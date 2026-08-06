@@ -11,68 +11,63 @@ export default function GameOver({ stats, onReplay }) {
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="fixed inset-0 z-[90] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+      transition={{ duration: 0.2 }}
+      className="fixed inset-0 z-[90] flex items-center justify-center bg-black/70 p-4"
     >
       <Confetti />
 
       <motion.div
-        initial={{ scale: 0.7, y: 40 }}
-        animate={{ scale: 1, y: 0 }}
-        transition={{ type: 'spring', damping: 15 }}
-        className="glass-strong p-8 w-full max-w-sm text-center glow-violet"
+        initial={{ scale: 0.85, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ duration: 0.25, ease: 'easeOut' }}
+        className="bg-[#1a1030]/95 border border-white/10 rounded-3xl p-6 w-full max-w-xs text-center shadow-[0_0_40px_rgba(139,92,246,0.15)]"
       >
         {/* Top Badge or Emoji */}
         {newTopRank ? (
-          <motion.div
-            initial={{ scale: 0, rotate: -30 }}
-            animate={{ scale: 1, rotate: 0 }}
-            transition={{ type: 'spring', delay: 0.2 }}
-          >
+          <div>
             <img
               src={`/icons/No${newTopRank}.png`}
               alt={`Top ${newTopRank}`}
-              className="w-20 h-20 mx-auto mb-2 drop-shadow-[0_0_20px_rgba(251,191,36,0.5)]"
+              className="w-16 h-16 mx-auto mb-1"
             />
-            <p className="text-sm text-amber-300 font-bold mb-4">
+            <p className="text-xs text-amber-300 font-bold mb-3">
               ยินดีด้วย! ติดอันดับ Top {newTopRank}!
             </p>
-          </motion.div>
+          </div>
         ) : (
-          <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ type: 'spring', delay: 0.1 }}
-            className="text-5xl mb-4"
-          >
-            🎉
-          </motion.div>
+          <div className="text-4xl mb-3">🎉</div>
         )}
 
-        <h2 className="text-2xl font-black text-gradient mb-6">การทดลองเสร็จสิ้น!</h2>
+        <h2 className="text-xl font-black text-gradient mb-4">การทดลองเสร็จสิ้น!</h2>
 
         {/* Stats */}
-        <div className="space-y-3 mb-8">
-          {[
-            { icon: '⭐', label: 'คะแนนรวม', value: score, style: 'text-gradient text-2xl' },
-            { icon: '✅', label: 'ตอบถูก', value: correct, style: 'text-emerald-400' },
-            { icon: '❌', label: 'ตอบผิด', value: wrong, style: 'text-red-400' },
-            { icon: '🔥', label: 'คอมโบสูงสุด', value: `x${maxMult}`, style: 'text-amber-400' },
-          ].map(({ icon, label, value, style }) => (
-            <div key={label} className="flex items-center justify-between px-4 py-2 rounded-xl bg-white/5">
-              <span className="text-sm text-white/60">{icon} {label}</span>
-              <span className={`font-nunito font-black ${style}`}>{value}</span>
-            </div>
-          ))}
+        <div className="space-y-2 mb-6">
+          <div className="flex items-center justify-between px-3 py-1.5 rounded-xl bg-white/5">
+            <span className="text-xs text-white/60">⭐ คะแนนรวม</span>
+            <span className="font-nunito font-black text-xl text-gradient">{score}</span>
+          </div>
+          <div className="flex items-center justify-between px-3 py-1.5 rounded-xl bg-white/5">
+            <span className="text-xs text-white/60">✅ ตอบถูก</span>
+            <span className="font-nunito font-black text-emerald-400">{correct}</span>
+          </div>
+          <div className="flex items-center justify-between px-3 py-1.5 rounded-xl bg-white/5">
+            <span className="text-xs text-white/60">❌ ตอบผิด</span>
+            <span className="font-nunito font-black text-red-400">{wrong}</span>
+          </div>
+          <div className="flex items-center justify-between px-3 py-1.5 rounded-xl bg-white/5">
+            <span className="text-xs text-white/60">🔥 คอมโบสูงสุด</span>
+            <span className="font-nunito font-black text-amber-400">x{maxMult}</span>
+          </div>
         </div>
 
         {/* Actions */}
-        <div className="flex flex-col gap-3">
-          <button onClick={onReplay} className="btn-gradient w-full text-base">
+        <div className="flex flex-col gap-2">
+          <button onClick={onReplay} className="btn-gradient w-full text-sm !py-3">
             🔄 เล่นอีกครั้ง
           </button>
           <button
             onClick={() => navigate('/leaderboard')}
-            className="w-full py-3 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 font-bold text-violet-300 transition-all"
+            className="w-full py-2.5 rounded-2xl bg-white/5 active:bg-white/10 border border-white/10 font-bold text-sm text-violet-300"
           >
             🏆 ดูอันดับ
           </button>

@@ -1,4 +1,4 @@
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { getMultiplier } from '../data/items';
 
 export default function HUD({ score, combo, lives, cardTimeLeft, cardMaxTime }) {
@@ -15,38 +15,55 @@ export default function HUD({ score, combo, lives, cardTimeLeft, cardMaxTime }) 
     : 'text-white/60';
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-40 px-4 pt-3 pb-2">
-      {/* HUD Row */}
-      <div className="flex items-center justify-between max-w-lg mx-auto">
-        {/* Score */}
-        <div className="glass px-4 py-2 text-center min-w-[90px]">
-          <div className="text-[10px] uppercase tracking-wider text-white/40 mb-0.5">Score</div>
+    <header className="fixed top-0 left-0 right-0 z-40 px-3 pt-2 pb-1 safe-top">
+      {/* Row 1: Lives (left) — space for TopWidget (right) */}
+      <div className="flex items-center justify-between max-w-lg mx-auto mb-1.5">
+        <div className="flex gap-0.5">
+          {[0, 1, 2].map(i => (
+            <motion.span
+              key={i}
+              animate={i >= lives ? { scale: 0.7, opacity: 0.3 } : { scale: 1, opacity: 1 }}
+              transition={{ duration: 0.15 }}
+              className="text-base leading-none"
+            >
+              {i < lives ? '❤️' : '🖤'}
+            </motion.span>
+          ))}
+        </div>
+        {/* Spacer — TopWidget renders separately at top-right */}
+        <div className="w-20" />
+      </div>
+
+      {/* Row 2: Score | Timer | Combo */}
+      <div className="flex items-center justify-between gap-2 max-w-lg mx-auto">
+        <div className="glass px-3 py-1.5 text-center flex-1 min-w-0">
+          <div className="text-[9px] uppercase tracking-wider text-white/40">Score</div>
           <motion.div
             key={score}
-            initial={{ scale: 1.4 }}
+            initial={{ scale: 1.3 }}
             animate={{ scale: 1 }}
-            className="text-xl font-nunito font-black text-gradient"
+            transition={{ duration: 0.15 }}
+            className="text-lg font-nunito font-black text-gradient leading-tight"
           >
             {score}
           </motion.div>
         </div>
 
-        {/* Timer */}
-        <div className="glass px-4 py-2 text-center min-w-[80px]">
-          <div className="text-[10px] uppercase tracking-wider text-white/40 mb-0.5">Timer</div>
-          <div className={`text-xl font-nunito font-black ${pct <= 0.25 ? 'text-red-400 animate-pulse' : pct <= 0.5 ? 'text-amber-400' : 'text-white'}`}>
+        <div className="glass px-3 py-1.5 text-center flex-1 min-w-0">
+          <div className="text-[9px] uppercase tracking-wider text-white/40">Timer</div>
+          <div className={`text-lg font-nunito font-black leading-tight ${pct <= 0.25 ? 'text-red-400' : pct <= 0.5 ? 'text-amber-400' : 'text-white'}`}>
             {cardTimeLeft.toFixed(1)}s
           </div>
         </div>
 
-        {/* Combo */}
-        <div className="glass px-4 py-2 text-center min-w-[80px]">
-          <div className="text-[10px] uppercase tracking-wider text-white/40 mb-0.5">Combo</div>
+        <div className="glass px-3 py-1.5 text-center flex-1 min-w-0">
+          <div className="text-[9px] uppercase tracking-wider text-white/40">Combo</div>
           <motion.div
             key={mult}
-            initial={{ scale: 1.5, rotate: -10 }}
-            animate={{ scale: 1, rotate: 0 }}
-            className={`text-xl font-nunito font-black ${comboColor}`}
+            initial={{ scale: 1.3 }}
+            animate={{ scale: 1 }}
+            transition={{ duration: 0.15 }}
+            className={`text-lg font-nunito font-black leading-tight ${comboColor}`}
           >
             x{mult}
           </motion.div>
@@ -54,25 +71,11 @@ export default function HUD({ score, combo, lives, cardTimeLeft, cardMaxTime }) 
       </div>
 
       {/* Timer Bar */}
-      <div className="max-w-lg mx-auto mt-2 h-1.5 bg-white/5 rounded-full overflow-hidden">
-        <motion.div
-          className={`h-full rounded-full bg-gradient-to-r ${timerColor}`}
-          animate={{ width: `${pct * 100}%` }}
-          transition={{ duration: 0.1 }}
+      <div className="max-w-lg mx-auto mt-1.5 h-1 bg-white/5 rounded-full overflow-hidden">
+        <div
+          className={`h-full rounded-full bg-gradient-to-r ${timerColor} transition-[width] duration-100`}
+          style={{ width: `${pct * 100}%` }}
         />
-      </div>
-
-      {/* Lives - top left floating */}
-      <div className="fixed top-3 left-3 z-50 flex gap-1">
-        {[0, 1, 2].map(i => (
-          <motion.span
-            key={i}
-            animate={i >= lives ? { scale: 0.7, opacity: 0.3 } : { scale: 1, opacity: 1 }}
-            className="text-lg"
-          >
-            {i < lives ? '❤️' : '🖤'}
-          </motion.span>
-        ))}
       </div>
     </header>
   );

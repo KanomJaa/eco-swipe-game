@@ -13,28 +13,19 @@ export default function ComboPopup({ multiplier, show }) {
     <AnimatePresence>
       {show && (
         <motion.div
-          initial={{ opacity: 0, scale: 0.3 }}
+          initial={{ opacity: 0, scale: 0.5 }}
           animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 1.5 }}
-          transition={{ type: 'spring', damping: 10, stiffness: 200 }}
+          exit={{ opacity: 0, scale: 1.3 }}
+          transition={{ duration: 0.25, ease: 'easeOut' }}
           className="fixed inset-0 z-[100] flex items-center justify-center pointer-events-none"
         >
           <div className="text-center">
-            <motion.div
-              animate={{ scale: [1, 1.1, 1], rotate: [0, -3, 3, 0] }}
-              transition={{ duration: 0.5, repeat: 1 }}
-              className={`text-5xl sm:text-6xl font-black bg-gradient-to-r ${msg.color} bg-clip-text text-transparent drop-shadow-2xl`}
-            >
+            <div className={`text-4xl sm:text-5xl font-black bg-gradient-to-r ${msg.color} bg-clip-text text-transparent`}>
               {msg.text}
-            </motion.div>
-            <motion.p
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              className="text-lg text-white/80 mt-2 font-semibold"
-            >
+            </div>
+            <p className="text-sm text-white/70 mt-1 font-semibold">
               {msg.sub}
-            </motion.p>
+            </p>
           </div>
         </motion.div>
       )}

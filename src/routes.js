@@ -1,0 +1,280 @@
+import { Router } from 'express';
+import { db } from './db.js';
+import { Player, Score } from './models.js';
+import { loadData, saveData, getClientIP, getPlayerKey } from './helpers.js';
+
+const router = Router();
+
+// Disable caching for all API endpoints
+router.use((req, res, next) => {
+    res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+    res.set('Pragma', 'no-cache');
+    res.set('Expires', '0');
+    next();
+});
+
+// Check if Player is registered
+router.get('/player', async (req, res) => {
+    const key = getPlayerKey(req);
+    const ip = getClientIP(req);
+
+    if (db.connected) {
+        try {
+            let player = await Player.findOne({ playerId: key });
+            if (!player && key === ip) {
+                player = await Player.findOne({ ip });
+            }
+            if (player) {
+                return res.json({ registered: true, nickname: player.nickname, avatar: player.avatar || 'icons/male_1.png', key });
+            }
+            return res.json({ registered: false, key });
+        } catch (err) {
+            console.error('Mongo Error on /api/player:', err.message);
+        }
+    }
+
+    const data = loadData();
+    const player = data.players[key] || (key === ip ? data.players[ip] : null);
+    if (player) {
+        res.json({ registered: true, nickname: player.nickname, avatar: player.avatar || 'icons/male_1.png', key });
+    } else {
+        res.json({ registered: false, key });
+    }
+});
+
+// Register nickname & avatar
+router.post('/register', async (req, res) => {
+    const key = getPlayerKey(req);
+    const ip = getClientIP(req);
+    const { nickname, avatar } = req.body;
+
+    if (!nickname || nickname.trim().length < 2 || nickname.trim().length > 16) {
+        return res.status(400).json({ error: 'ชื่อต้องมี 2-16 ตัวอักษร' });
+    }
+
+    const cleanNickname = nickname.trim();
+    const cleanAvatar = avatar || 'icons/male_1.png';
+
+    const data = loadData();
+
+    if (db.connected) {
+        try {
+            const escapedName = cleanNickname.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            const existingPlayer = await Player.findOne({
+                nickname: { $regex: new RegExp(`^${escapedName}$`, 'i') },
+                playerId: { $ne: key }
+            });
+            if (existingPlayer) {
+                return res.status(400).json({ error: 'ชื่อนี้มีผู้ใช้งานแล้ว กรุณาใช้ชื่ออื่น 🧪' });
+            }
+        } catch (err) {
+            console.error('Mongo duplicate check error:', err.message);
+        }
+    }
+
+    const isDuplicate = Object.values(data.players || {}).some(p =>
+        p.playerId !== key && p.nickname && p.nickname.toLowerCase() === cleanNickname.toLowerCase()
+    );
+    if (isDuplicate) {
+        return res.status(400).json({ error: 'ชื่อนี้มีผู้ใช้งานแล้ว กรุณาใช้ชื่ออื่น 🧪' });
+    }
+
+    data.players[key] = {
+        playerId: key,
+        nickname: cleanNickname,
+        avatar: cleanAvatar,
+        ip,
+        registeredAt: new Date().toISOString(),
+        lastSeen: new Date().toISOString()
+    };
+    saveData(data);
+
+    if (db.connected) {
+        try {
+            await Player.findOneAndUpdate(
+                { playerId: key },
+                { playerId: key, nickname: cleanNickname, avatar: cleanAvatar, ip, lastSeen: new Date() },
+                { upsert: true, new: true, setDefaultsOnInsert: true }
+            );
+        } catch (err) {
+            console.error('Mongo Error on /api/register:', err.message);
+        }
+    }
+
+    res.json({ success: true, nickname: cleanNickname, avatar: cleanAvatar, key });
+});
+
+// Submit score
+router.post('/score', async (req, res) => {
+    const key = getPlayerKey(req);
+    const { score, combo, correct, wrong } = req.body;
+    const currentScore = Math.max(0, Number(score) || 0);
+
+    const data = loadData();
+    const filePlayer = data.players[key];
+
+    if (db.connected) {
+        try {
+            const player = await Player.findOne({ playerId: key });
+            if (player) {
+                player.lastSeen = new Date();
+                await player.save();
+
+                const playerScores = await Score.find({ playerId: key });
+                const prevBestScore = playerScores.length > 0 ? Math.max(...playerScores.map(s => s.score)) : -1;
+                const isNewPersonalBest = currentScore >= prevBestScore;
+
+                await Score.create({
+                    playerId: key,
+                    nickname: player.nickname,
+                    score: currentScore,
+                    maxCombo: combo || 0,
+                    correct: correct || 0,
+                    wrong: wrong || 0,
+                    playedAt: new Date()
+                });
+
+                let newTopRank = null;
+                if (currentScore > 0 && isNewPersonalBest) {
+                    const allBestScores = await Score.aggregate([
+                        { $sort: { score: -1 } },
+                        { $group: { _id: '$playerId', bestScore: { $first: '$score' } } },
+                        { $sort: { bestScore: -1 } }
+                    ]);
+
+                    const rank = allBestScores.findIndex(entry => entry._id === key) + 1;
+                    if (rank >= 1 && rank <= 3) {
+                        newTopRank = rank;
+                    }
+                }
+
+                return res.json({ success: true, score: currentScore, newTopRank, isNewPersonalBest });
+            }
+        } catch (err) {
+            console.error('Mongo Error on /api/score:', err.message);
+        }
+    }
+
+    if (!filePlayer) {
+        return res.status(400).json({ error: 'ยังไม่ได้ลงทะเบียน' });
+    }
+
+    filePlayer.lastSeen = new Date().toISOString();
+    const playerScores = data.scores.filter((s) => (s.playerId || s.ip) === key);
+    const prevBestScore = playerScores.length > 0 ? Math.max(...playerScores.map((s) => s.score)) : -1;
+    const isNewPersonalBest = currentScore >= prevBestScore;
+
+    data.scores.push({
+        playerId: key,
+        nickname: filePlayer.nickname,
+        score: currentScore,
+        maxCombo: combo || 0,
+        correct: correct || 0,
+        wrong: wrong || 0,
+        playedAt: new Date().toISOString(),
+    });
+    saveData(data);
+
+    let newTopRank = null;
+    if (currentScore > 0 && isNewPersonalBest) {
+        const bestScores = {};
+        data.scores.forEach((entry) => {
+            const pKey = entry.playerId || entry.ip;
+            if (!bestScores[pKey] || entry.score > bestScores[pKey].score) {
+                bestScores[pKey] = entry;
+            }
+        });
+        const leaderboard = Object.values(bestScores).sort((a, b) => b.score - a.score);
+        const rank = leaderboard.findIndex((entry) => (entry.playerId || entry.ip) === key) + 1;
+        if (rank >= 1 && rank <= 3) {
+            newTopRank = rank;
+        }
+    }
+
+    res.json({ success: true, score: currentScore, newTopRank, isNewPersonalBest });
+});
+
+// Get leaderboard
+router.get('/leaderboard', async (req, res) => {
+    if (db.connected) {
+        try {
+            const topScores = await Score.aggregate([
+                { $sort: { score: -1 } },
+                {
+                    $group: {
+                        _id: '$playerId',
+                        nickname: { $first: '$nickname' },
+                        score: { $first: '$score' },
+                        maxCombo: { $first: '$maxCombo' },
+                        playedAt: { $first: '$playedAt' }
+                    }
+                },
+                { $sort: { score: -1 } },
+                { $limit: 10 }
+            ]);
+
+            const pKeys = topScores.map(item => item._id);
+            const players = await Player.find({ playerId: { $in: pKeys } });
+            const playerMap = {};
+            players.forEach(p => { playerMap[p.playerId] = p.avatar; });
+
+            const leaderboard = topScores.map((entry, index) => ({
+                rank: index + 1,
+                nickname: entry.nickname,
+                avatar: playerMap[entry._id] || 'icons/male_1.png',
+                score: entry.score,
+                maxCombo: entry.maxCombo,
+                playedAt: entry.playedAt
+            }));
+
+            return res.json(leaderboard);
+        } catch (err) {
+            console.error('Mongo Error on /api/leaderboard:', err.message);
+        }
+    }
+
+    const data = loadData();
+    const bestScores = {};
+    data.scores.forEach((entry) => {
+        const pKey = entry.playerId || entry.ip;
+        if (!bestScores[pKey] || entry.score > bestScores[pKey].score) {
+            bestScores[pKey] = entry;
+        }
+    });
+
+    const leaderboard = Object.values(bestScores)
+        .sort((a, b) => b.score - a.score)
+        .slice(0, 10)
+        .map((entry, i) => {
+            const pKey = entry.playerId || entry.ip;
+            return {
+                rank: i + 1,
+                nickname: entry.nickname,
+                avatar: data.players[pKey]?.avatar || 'icons/male_1.png',
+                score: entry.score,
+                maxCombo: entry.maxCombo,
+                playedAt: entry.playedAt,
+            };
+        });
+
+    res.json(leaderboard);
+});
+
+// Reset all data
+router.get('/reset', async (req, res) => {
+    const data = { players: {}, scores: [] };
+    saveData(data);
+
+    if (db.connected) {
+        try {
+            await Player.deleteMany({});
+            await Score.deleteMany({});
+        } catch (err) {
+            console.error('Mongo Reset Error:', err.message);
+        }
+    }
+
+    res.json({ success: true, message: 'ลบข้อมูลผู้เล่นและคะแนนทั้งหมดสำเร็จแล้ว!' });
+});
+
+export default router;

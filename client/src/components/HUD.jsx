@@ -15,22 +15,9 @@ export default function HUD({ score, combo, lives, cardTimeLeft, cardMaxTime }) 
     : 'text-white/60';
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-40 px-2 pt-2 pb-1 safe-top">
-      {/* Single row: Lives | Score | Timer | Combo — TopWidget is separate but row leaves space via pr */}
-      <div className="flex items-center gap-1.5 max-w-lg mx-auto pr-[72px]">
-        {/* Lives */}
-        <div className="flex gap-0.5 shrink-0 mr-1">
-          {[0, 1, 2].map(i => (
-            <span
-              key={i}
-              className={`text-sm leading-none transition-opacity duration-150 ${i >= lives ? 'opacity-30 scale-75 inline-block' : ''}`}
-            >
-              {i < lives ? '❤️' : '🖤'}
-            </span>
-          ))}
-        </div>
-
-        {/* Score */}
+    <header className="fixed top-0 left-0 right-0 z-40 px-3 pt-2 pb-1 safe-top">
+      {/* Row 1: Score | Timer | Combo */}
+      <div className="flex items-center gap-2 max-w-lg mx-auto">
         <div className="glass px-2 py-1.5 text-center flex-1 min-w-0 !rounded-xl">
           <div className="text-[8px] uppercase tracking-wider text-white/40">Score</div>
           <motion.div
@@ -44,7 +31,6 @@ export default function HUD({ score, combo, lives, cardTimeLeft, cardMaxTime }) 
           </motion.div>
         </div>
 
-        {/* Timer */}
         <div className="glass px-2 py-1.5 text-center flex-1 min-w-0 !rounded-xl">
           <div className="text-[8px] uppercase tracking-wider text-white/40">Timer</div>
           <div className={`text-base font-nunito font-black leading-tight ${pct <= 0.25 ? 'text-red-400' : pct <= 0.5 ? 'text-amber-400' : 'text-white'}`}>
@@ -52,7 +38,6 @@ export default function HUD({ score, combo, lives, cardTimeLeft, cardMaxTime }) 
           </div>
         </div>
 
-        {/* Combo */}
         <div className="glass px-2 py-1.5 text-center flex-1 min-w-0 !rounded-xl">
           <div className="text-[8px] uppercase tracking-wider text-white/40">Combo</div>
           <motion.div
@@ -67,12 +52,27 @@ export default function HUD({ score, combo, lives, cardTimeLeft, cardMaxTime }) 
         </div>
       </div>
 
-      {/* Timer Bar */}
+      {/* Row 2: Timer Bar */}
       <div className="max-w-lg mx-auto mt-1.5 h-1 bg-white/5 rounded-full overflow-hidden">
         <div
           className={`h-full rounded-full bg-gradient-to-r ${timerColor} transition-[width] duration-100`}
           style={{ width: `${pct * 100}%` }}
         />
+      </div>
+
+      {/* Row 3: Lives (left) — TopWidget renders separately (right) */}
+      <div className="flex items-center justify-between max-w-lg mx-auto mt-2">
+        <div className="flex gap-0.5">
+          {[0, 1, 2].map(i => (
+            <span
+              key={i}
+              className={`text-sm leading-none transition-opacity duration-150 ${i >= lives ? 'opacity-30' : ''}`}
+            >
+              {i < lives ? '❤️' : '🖤'}
+            </span>
+          ))}
+        </div>
+        {/* Right side space reserved for TopWidget */}
       </div>
     </header>
   );

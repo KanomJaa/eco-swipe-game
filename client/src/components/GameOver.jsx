@@ -71,6 +71,12 @@ export default function GameOver({ stats, onReplay }) {
           >
             🏆 ดูอันดับ
           </button>
+          <button
+            onClick={() => navigate('/')}
+            className="w-full py-2.5 rounded-2xl bg-white/5 active:bg-white/10 border border-white/10 font-bold text-sm text-white/50"
+          >
+            🏠 หน้าหลัก
+          </button>
         </div>
       </motion.div>
     </motion.div>

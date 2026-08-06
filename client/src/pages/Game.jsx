@@ -285,33 +285,23 @@ export default function Game() {
       {/* Streak Dots */}
       {gameState === 'playing' && <StreakDots combo={combo} />}
 
-      {/* Feedback Emoji */}
+      {/* Combined Feedback + Score */}
       <AnimatePresence>
-        {feedback && (
+        {(feedback || scoreFly) && (
           <motion.div
-            initial={{ opacity: 0, scale: 2 }}
+            key={scoreFly?.key || feedback}
+            initial={{ opacity: 0, scale: 1.5 }}
             animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.5 }}
-            className="fixed top-1/3 left-1/2 -translate-x-1/2 z-50 text-5xl pointer-events-none"
+            exit={{ opacity: 0, y: -40 }}
+            transition={{ duration: 0.6 }}
+            className="fixed top-1/3 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center gap-1 pointer-events-none"
           >
-            {feedback}
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Score Fly */}
-      <AnimatePresence>
-        {scoreFly && (
-          <motion.div
-            key={scoreFly.key}
-            initial={{ opacity: 1, y: 0 }}
-            animate={{ opacity: 0, y: -60 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.8 }}
-            className={`fixed top-[38%] left-1/2 -translate-x-1/2 z-50 text-xl font-black pointer-events-none
-              ${scoreFly.isNeg ? 'text-red-400' : 'text-emerald-400'}`}
-          >
-            {scoreFly.text}
+            {feedback && <span className="text-5xl">{feedback}</span>}
+            {scoreFly && (
+              <span className={`text-xl font-black ${scoreFly.isNeg ? 'text-red-400' : 'text-emerald-400'}`}>
+                {scoreFly.text}
+              </span>
+            )}
           </motion.div>
         )}
       </AnimatePresence>

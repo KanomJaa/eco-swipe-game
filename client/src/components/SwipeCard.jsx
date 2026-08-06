@@ -5,8 +5,9 @@ export default function SwipeCard({ item, onSwipe, disabled }) {
   const rotate = useTransform(x, [-200, 200], [-12, 12]);
   const opacity = useTransform(x, [-250, -80, 0, 80, 250], [0.5, 0.85, 1, 0.85, 0.5]);
 
-  const leftGlow = useTransform(x, [-120, -30, 0], [1, 0.3, 0]);
-  const rightGlow = useTransform(x, [0, 30, 120], [0, 0.3, 1]);
+  // Bin icons: always visible at 0.25, brighten to 1 on drag
+  const leftGlow = useTransform(x, [-120, -30, 0], [1, 0.5, 0.25]);
+  const rightGlow = useTransform(x, [0, 30, 120], [0.25, 0.5, 1]);
 
   function handleDragEnd(_, info) {
     if (disabled) return;
@@ -20,12 +21,12 @@ export default function SwipeCard({ item, onSwipe, disabled }) {
 
   return (
     <>
-      {/* Bin Indicators */}
+      {/* Bin Indicators — always visible (dim), brighten on drag */}
       <motion.div
         className="fixed left-2 top-1/2 -translate-y-1/2 z-20 flex flex-col items-center gap-1 pointer-events-none"
         style={{ opacity: leftGlow }}
       >
-        <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-emerald-500/20 border border-emerald-400/40 flex items-center justify-center text-2xl">
+        <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-emerald-500/20 border border-emerald-400/30 flex items-center justify-center text-2xl">
           ♻️
         </div>
         <span className="text-[10px] font-bold text-emerald-400">รีไซเคิล</span>
@@ -35,7 +36,7 @@ export default function SwipeCard({ item, onSwipe, disabled }) {
         className="fixed right-2 top-1/2 -translate-y-1/2 z-20 flex flex-col items-center gap-1 pointer-events-none"
         style={{ opacity: rightGlow }}
       >
-        <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-red-500/20 border border-red-400/40 flex items-center justify-center text-2xl">
+        <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-xl bg-red-500/20 border border-red-400/30 flex items-center justify-center text-2xl">
           ☢️
         </div>
         <span className="text-[10px] font-bold text-red-400">อันตราย</span>
@@ -54,7 +55,6 @@ export default function SwipeCard({ item, onSwipe, disabled }) {
         className="relative z-30 w-64 sm:w-72 cursor-grab active:cursor-grabbing select-none touch-none"
       >
         <div className="bg-white/[0.08] border border-white/10 rounded-3xl p-6 sm:p-8 text-center shadow-[0_0_30px_rgba(139,92,246,0.12)]">
-          {/* Item visual */}
           <div className="mb-3">
             {item.icon ? (
               <img

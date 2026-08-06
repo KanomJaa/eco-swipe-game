@@ -58,7 +58,7 @@ export default function HUD({ score, combo, lives, cardTimeLeft, cardMaxTime, ch
       {/* Row 2: Timer Bar */}
       <div className="max-w-lg mx-auto mt-1.5 h-1 bg-white/5 rounded-full overflow-hidden">
         <div
-          className={`h-full rounded-full bg-gradient-to-r ${timerColor} transition-[width] duration-100`}
+          className={`h-full rounded-full bg-gradient-to-r ${timerColor}`}
           style={{ width: `${pct * 100}%` }}
         />
       </div>
@@ -69,7 +69,7 @@ export default function HUD({ score, combo, lives, cardTimeLeft, cardMaxTime, ch
           {[0, 1, 2].map(i => (
             <span
               key={i}
-              className={`text-sm leading-none transition-opacity duration-150 ${i >= lives ? 'opacity-30' : ''}`}
+              className={`text-xl leading-none transition-opacity duration-150 ${i >= lives ? 'opacity-30' : ''}`}
             >
               {i < lives ? '❤️' : '🖤'}
             </span>

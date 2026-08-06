@@ -89,10 +89,10 @@ export default function Register() {
         {/* Card */}
         <div className="glass-strong p-8 glow-violet">
           <h1 className="text-3xl font-black text-center text-gradient mb-2">
-            Eco-Swipe
+            ปัดขวาพิทักษ์โลก
           </h1>
           <p className="text-center text-white/40 text-sm mb-8">
-            ปัดขวาพิทักษ์โลก — ลงทะเบียนเข้าร่วม!
+            คัดแยกขยะให้ถูกประเภท — ลงทะเบียนเข้าร่วม!
           </p>
 
           <form onSubmit={handleSubmit}>

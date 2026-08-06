@@ -486,7 +486,7 @@ export default function Game() {
 
               <button
                 onClick={() => setShowCodePopup(false)}
-                className="w-full mt-3 py-2 rounded-xl bg-white/5 text-xs text-white/40 hover:bg-white/10 transition-colors"
+                className="w-full mt-3 py-2 rounded-xl bg-red-500/20 border border-red-400/30 text-xs text-red-400 font-bold hover:bg-red-500/30 transition-colors"
               >
                 ปิด
               </button>

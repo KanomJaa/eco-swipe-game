@@ -17,7 +17,7 @@ function shuffle(arr) {
 export default function Game() {
   const navigate = useNavigate();
   const [verified, setVerified] = useState(false);
-  const [gameState, setGameState] = useState('idle'); // idle | playing | over
+  const [gameState, setGameState] = useState('idle'); // idle | ready | playing | over
   const [score, setScore] = useState(0);
   const [combo, setCombo] = useState(0);
   const [maxCombo, setMaxCombo] = useState(0);
@@ -136,9 +136,13 @@ export default function Game() {
     setScore(0); setCombo(0); setMaxCombo(0); setCorrect(0); setWrong(0); setLives(3);
     scoreRef.current = 0; comboRef.current = 0; livesRef.current = 3; correctRef.current = 0; wrongRef.current = 0;
     itemsRef.current = shuffle(ITEMS);
-    setGameState('playing');
     setGameOverStats(null);
     setShowSavedResult(false);
+    setGameState('ready');
+  }
+
+  function beginPlaying() {
+    setGameState('playing');
     setTimeout(() => nextItem(), 100);
   }
 
@@ -335,6 +339,23 @@ export default function Game() {
           </motion.div>
         )}
 
+        {/* Ready Screen */}
+        {gameState === 'ready' && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="text-center p-8"
+          >
+            <div className="glass p-6 max-w-xs mx-auto mb-6">
+              <p className="text-sm text-white/60 mb-2">👈 ปัดซ้าย = <span className="text-emerald-400">รีไซเคิล ♻️</span></p>
+              <p className="text-sm text-white/60">👉 ปัดขวา = <span className="text-red-400">อันตราย ☢️</span></p>
+            </div>
+            <button onClick={beginPlaying} className="btn-gradient text-xl px-14 !py-4">
+              พร้อม! 🚀
+            </button>
+          </motion.div>
+        )}
+
         {/* Playing - Swipe Card */}
         {gameState === 'playing' && currentItem && (
           <SwipeCard key={cardKey} item={currentItem} onSwipe={handleSwipe} />
@@ -403,7 +424,7 @@ export default function Game() {
 
       {/* Game Over */}
       {gameState === 'over' && gameOverStats && (
-        <GameOver stats={gameOverStats} onReplay={startGame} />
+        <GameOver stats={gameOverStats} onReplay={startGame} keys={keys} />
       )}
 
       {/* Code Redemption Popup */}

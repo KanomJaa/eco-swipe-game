@@ -2,7 +2,7 @@ import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import Confetti from './Confetti';
 
-export default function GameOver({ stats, onReplay }) {
+export default function GameOver({ stats, onReplay, keys = 0 }) {
   const navigate = useNavigate();
   const { score, correct, wrong, maxCombo, newTopRank } = stats;
   const maxMult = maxCombo >= 10 ? 5 : maxCombo >= 6 ? 3 : maxCombo >= 3 ? 2 : 1;
@@ -60,10 +60,21 @@ export default function GameOver({ stats, onReplay }) {
           </div>
         </div>
 
+        {/* Key Display */}
+        <div className="flex items-center justify-center gap-1.5 mb-4">
+          <span className="text-sm">🔑</span>
+          <span className={`text-sm font-black ${keys > 0 ? 'text-amber-400' : 'text-red-400'}`}>{keys}</span>
+          <span className="text-[10px] text-white/40">Key เหลือ</span>
+        </div>
+
         {/* Actions */}
         <div className="flex flex-col gap-2">
-          <button onClick={onReplay} className="btn-gradient w-full text-sm !py-3">
-            🔄 เล่นอีกครั้ง
+          <button
+            onClick={onReplay}
+            disabled={keys <= 0}
+            className={`w-full text-sm !py-3 ${keys > 0 ? 'btn-gradient' : 'py-3 rounded-2xl bg-white/5 text-white/30 cursor-not-allowed border border-white/10'}`}
+          >
+            {keys > 0 ? '🔄 เล่นอีกครั้ง' : '🔒 ไม่มี Key'}
           </button>
           <button
             onClick={() => navigate('/leaderboard')}

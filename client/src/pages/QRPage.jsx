@@ -18,7 +18,7 @@ export default function QRPage() {
         className="glass-strong p-8 w-full max-w-sm text-center glow-violet"
       >
         <h1 className="text-2xl font-black text-gradient mb-1">📱 สแกนเข้าเกม!</h1>
-        <p className="text-sm text-white/40 mb-6">Eco-Swipe — ปัดขวาพิทักษ์โลก</p>
+        <p className="text-sm text-white/40 mb-6">ปัดขวาพิทักษ์โลก</p>
 
         {/* URL Input */}
         <div className="flex gap-2 mb-6">

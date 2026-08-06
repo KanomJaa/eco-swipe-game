@@ -105,7 +105,8 @@ export default function Leaderboard() {
         >
           🏆 อันดับนักวิทย์
         </motion.h1>
-        <p className="text-sm text-white/30">Eco-Swipe — ปัดขวาพิทักษ์โลก</p>
+        <p className="text-sm text-white/30">ปัดขวาพิทักษ์โลก</p>
+        <p className="text-xs text-white/20 mt-1">งานวันวิทยาศาสตร์ มหาวิทยาลัยราชภัฏศรีสะเกษ</p>
       </header>
 
       {/* Podium */}

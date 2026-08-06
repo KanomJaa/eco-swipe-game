@@ -32,6 +32,8 @@ export default function Game() {
   const [cardMaxTime, setCardMaxTime] = useState(3);
   const [gameOverStats, setGameOverStats] = useState(null);
   const [showSavedResult, setShowSavedResult] = useState(false);
+  const [playerNickname, setPlayerNickname] = useState('');
+  const [playerAvatar, setPlayerAvatar] = useState('');
 
   const itemsRef = useRef([]);
   const cardTimerRef = useRef(null);
@@ -57,6 +59,8 @@ export default function Game() {
           navigate('/', { replace: true });
         } else {
           setVerified(true);
+          setPlayerNickname(data.nickname || sessionStorage.getItem('playerNickname') || '');
+          setPlayerAvatar(data.avatar || sessionStorage.getItem('playerAvatar') || 'icons/male_1.png');
           // Check for saved result (returning from leaderboard)
           const params = new URLSearchParams(window.location.search);
           if (params.get('showResult') === '1') {
@@ -247,20 +251,48 @@ export default function Game() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-center p-8"
+            className="text-center p-6 w-full max-w-sm mx-auto"
           >
+            {/* Profile */}
             <motion.div
-              animate={{ y: [0, -10, 0] }}
-              transition={{ duration: 2, repeat: Infinity }}
-              className="text-6xl mb-6"
+              initial={{ scale: 0.8 }}
+              animate={{ scale: 1 }}
+              transition={{ delay: 0.1, duration: 0.4 }}
+              className="flex flex-col items-center mb-6"
             >
-              🧪
+              <div className="w-20 h-20 rounded-full border-2 border-violet-400/50 shadow-[0_0_20px_rgba(139,92,246,0.3)] overflow-hidden mb-3">
+                <img
+                  src={`/${playerAvatar}`}
+                  alt="avatar"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <span className="text-lg font-bold text-white">{playerNickname}</span>
             </motion.div>
-            <h1 className="text-3xl font-black text-gradient mb-4">Eco-Swipe</h1>
-            <div className="glass p-6 mb-6 text-left space-y-2 max-w-xs mx-auto">
-              <p className="text-sm text-white/60">👈 ปัดซ้าย = <span className="text-emerald-400">รีไซเคิล ♻️</span></p>
-              <p className="text-sm text-white/60">👉 ปัดขวา = <span className="text-red-400">อันตราย ☢️</span></p>
+
+            {/* Title */}
+            <h1 className="text-2xl sm:text-3xl font-black text-gradient mb-2">ปัดขวาพิทักษ์โลก</h1>
+            <p className="text-white/30 text-xs mb-6">คัดแยกขยะให้ถูกประเภท!</p>
+
+            {/* Instructions */}
+            <div className="glass p-5 mb-6 space-y-3 max-w-xs mx-auto">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-lg bg-emerald-500/20 border border-emerald-400/20 flex items-center justify-center text-base shrink-0">♻️</div>
+                <div className="text-left">
+                  <p className="text-xs font-bold text-emerald-400">ปัดซ้าย</p>
+                  <p className="text-[10px] text-white/40">ขยะรีไซเคิลได้</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-lg bg-red-500/20 border border-red-400/20 flex items-center justify-center text-base shrink-0">☢️</div>
+                <div className="text-left">
+                  <p className="text-xs font-bold text-red-400">ปัดขวา</p>
+                  <p className="text-[10px] text-white/40">ขยะอันตราย</p>
+                </div>
+              </div>
             </div>
+
+            {/* Start Button */}
             <button onClick={startGame} className="btn-gradient text-lg px-12">
               เริ่มเกม! ✨
             </button>

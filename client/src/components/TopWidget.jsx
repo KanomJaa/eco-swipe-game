@@ -29,7 +29,7 @@ export default function TopWidget() {
   }, []);
 
   return (
-    <div className="fixed top-[62px] right-3 z-50 safe-top">
+    <div className="fixed top-[70px] right-3 z-50 safe-top">
       <button
         onClick={() => setOpen(!open)}
         className="glass px-2.5 py-1.5 flex items-center gap-1.5 text-xs hover:bg-white/10 transition-colors"

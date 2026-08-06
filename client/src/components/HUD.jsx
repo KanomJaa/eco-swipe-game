@@ -15,7 +15,7 @@ export default function HUD({ score, combo, lives, cardTimeLeft, cardMaxTime }) 
     : 'text-white/60';
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-40 px-3 pt-2 pb-1 safe-top">
+    <header className="fixed top-0 left-0 right-0 z-40 px-3 pt-4 pb-1 safe-top">
       {/* Row 1: Score | Timer | Combo */}
       <div className="flex items-center gap-2 max-w-lg mx-auto">
         <div className="glass px-2 py-1.5 text-center flex-1 min-w-0 !rounded-xl">

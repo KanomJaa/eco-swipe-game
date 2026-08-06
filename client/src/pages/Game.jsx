@@ -39,6 +39,7 @@ export default function Game() {
   const [codeError, setCodeError] = useState('');
   const [codeSuccess, setCodeSuccess] = useState('');
   const [redeeming, setRedeeming] = useState(false);
+  const [showCodePopup, setShowCodePopup] = useState(false);
 
   const itemsRef = useRef([]);
   const cardTimerRef = useRef(null);
@@ -309,44 +310,18 @@ export default function Game() {
               </div>
             </div>
 
-            {/* Key Display */}
-            <div className="flex items-center justify-center gap-2 mb-4">
-              <span className="text-2xl">🔑</span>
-              <span className={`text-xl font-black ${keys > 0 ? 'text-amber-400' : 'text-red-400'}`}>{keys}</span>
-              <span className="text-xs text-white/40">Key เหลือ</span>
-            </div>
-
-            {/* Code Redemption */}
-            <div className="glass p-4 mb-5 max-w-xs mx-auto">
-              <p className="text-xs text-white/40 mb-2">ใส่โค้ดเพื่อรับ Key</p>
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  value={codeInput}
-                  onChange={e => { setCodeInput(e.target.value.toUpperCase()); setCodeError(''); setCodeSuccess(''); }}
-                  placeholder="ใส่โค้ด..."
-                  maxLength={20}
-                  className="flex-1 px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-sm placeholder:text-white/20 focus:border-violet-500/50 focus:outline-none"
-                />
-                <button
-                  onClick={async () => {
-                    if (!codeInput.trim() || redeeming) return;
-                    setRedeeming(true); setCodeError(''); setCodeSuccess('');
-                    try {
-                      const result = await redeemCode(codeInput.trim());
-                      if (result.error) { setCodeError(result.error); }
-                      else { setCodeSuccess(`+${result.keysAdded} Key!`); setKeys(result.totalKeys); setCodeInput(''); }
-                    } catch { setCodeError('เกิดข้อผิดพลาด'); }
-                    setRedeeming(false);
-                  }}
-                  disabled={redeeming || !codeInput.trim()}
-                  className="px-4 py-2 rounded-xl bg-violet-600 hover:bg-violet-500 text-sm font-bold text-white disabled:opacity-40 transition-colors"
-                >
-                  {redeeming ? '...' : 'ใช้'}
-                </button>
+            {/* Key Badge + Add Button */}
+            <div className="flex items-center justify-center gap-2 mb-5">
+              <div className={`glass px-3 py-1.5 flex items-center gap-1.5 ${keys > 0 ? '' : 'border-red-400/30'}`}>
+                <span className="text-sm">🔑</span>
+                <span className={`text-sm font-black ${keys > 0 ? 'text-amber-400' : 'text-red-400'}`}>{keys}</span>
               </div>
-              {codeError && <p className="text-xs text-red-400 mt-2">{codeError}</p>}
-              {codeSuccess && <p className="text-xs text-emerald-400 mt-2">{codeSuccess}</p>}
+              <button
+                onClick={() => { setShowCodePopup(true); setCodeError(''); setCodeSuccess(''); setCodeInput(''); }}
+                className="w-8 h-8 rounded-xl bg-violet-600 hover:bg-violet-500 flex items-center justify-center text-white font-bold text-lg transition-colors"
+              >
+                +
+              </button>
             </div>
 
             {/* Start Button */}
@@ -430,6 +405,74 @@ export default function Game() {
       {gameState === 'over' && gameOverStats && (
         <GameOver stats={gameOverStats} onReplay={startGame} />
       )}
+
+      {/* Code Redemption Popup */}
+      <AnimatePresence>
+        {showCodePopup && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[80] flex items-center justify-center bg-black/60 p-4"
+            onClick={() => setShowCodePopup(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.85, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.85, opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="bg-[#1a1030]/95 border border-white/10 rounded-2xl p-5 w-full max-w-xs shadow-[0_0_30px_rgba(139,92,246,0.15)]"
+              onClick={e => e.stopPropagation()}
+            >
+              <h3 className="text-base font-bold text-white text-center mb-1">🔑 เติม Key</h3>
+              <p className="text-xs text-white/30 text-center mb-4">ใส่โค้ดเพื่อรับ Key เล่นเกม</p>
+
+              <div className="flex gap-2 mb-2">
+                <input
+                  type="text"
+                  value={codeInput}
+                  onChange={e => { setCodeInput(e.target.value.toUpperCase()); setCodeError(''); setCodeSuccess(''); }}
+                  placeholder="ใส่โค้ด..."
+                  maxLength={20}
+                  autoFocus
+                  className="flex-1 px-3 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm placeholder:text-white/20 focus:border-violet-500/50 focus:outline-none"
+                />
+                <button
+                  onClick={async () => {
+                    if (!codeInput.trim() || redeeming) return;
+                    setRedeeming(true); setCodeError(''); setCodeSuccess('');
+                    try {
+                      const result = await redeemCode(codeInput.trim());
+                      if (result.error) { setCodeError(result.error); }
+                      else {
+                        setCodeSuccess(`+${result.keysAdded} Key!`);
+                        setKeys(result.totalKeys);
+                        setCodeInput('');
+                        setTimeout(() => setShowCodePopup(false), 1000);
+                      }
+                    } catch { setCodeError('เกิดข้อผิดพลาด'); }
+                    setRedeeming(false);
+                  }}
+                  disabled={redeeming || !codeInput.trim()}
+                  className="px-4 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-sm font-bold text-white disabled:opacity-40 transition-colors"
+                >
+                  {redeeming ? '...' : 'ใช้'}
+                </button>
+              </div>
+
+              {codeError && <p className="text-xs text-red-400 mt-1">{codeError}</p>}
+              {codeSuccess && <p className="text-xs text-emerald-400 mt-1">{codeSuccess}</p>}
+
+              <button
+                onClick={() => setShowCodePopup(false)}
+                className="w-full mt-3 py-2 rounded-xl bg-white/5 text-xs text-white/40 hover:bg-white/10 transition-colors"
+              >
+                ปิด
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

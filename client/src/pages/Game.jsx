@@ -285,7 +285,7 @@ export default function Game() {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.8, y: -30 }}
             transition={{ duration: 0.35, ease: 'easeOut' }}
-            className="fixed top-[30%] left-1/2 -translate-x-1/2 z-50 pointer-events-none"
+            className="fixed top-[30%] left-0 right-0 z-50 pointer-events-none flex justify-center"
           >
             <div className={`px-6 py-3 rounded-2xl border backdrop-blur-sm flex items-center gap-3 shadow-lg ${
               toast.type === 'correct'

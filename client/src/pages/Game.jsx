@@ -43,12 +43,16 @@ export default function Game() {
   const scoreRef = useRef(0);
   const comboRef = useRef(0);
   const livesRef = useRef(3);
+  const correctRef = useRef(0);
+  const wrongRef = useRef(0);
 
   // Keep refs in sync
   useEffect(() => { gameStateRef.current = gameState; }, [gameState]);
   useEffect(() => { scoreRef.current = score; }, [score]);
   useEffect(() => { comboRef.current = combo; }, [combo]);
   useEffect(() => { livesRef.current = lives; }, [lives]);
+  useEffect(() => { correctRef.current = correct; }, [correct]);
+  useEffect(() => { wrongRef.current = wrong; }, [wrong]);
 
   // Verify player
   useEffect(() => {
@@ -116,7 +120,7 @@ export default function Game() {
   function startGame() {
     sessionStorage.removeItem('lastGameSummary');
     setScore(0); setCombo(0); setMaxCombo(0); setCorrect(0); setWrong(0); setLives(3);
-    scoreRef.current = 0; comboRef.current = 0; livesRef.current = 3;
+    scoreRef.current = 0; comboRef.current = 0; livesRef.current = 3; correctRef.current = 0; wrongRef.current = 0;
     itemsRef.current = shuffle(ITEMS);
     setGameState('playing');
     setGameOverStats(null);
@@ -202,8 +206,8 @@ export default function Game() {
     const stats = {
       score: scoreRef.current,
       combo: maxCombo > comboRef.current ? maxCombo : comboRef.current,
-      correct,
-      wrong,
+      correct: correctRef.current,
+      wrong: wrongRef.current,
     };
 
     try {

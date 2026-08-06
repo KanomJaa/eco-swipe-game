@@ -16,6 +16,12 @@ export default function GameOver({ stats, onReplay, keys = 0 }) {
     >
       <Confetti />
 
+      {/* Key Badge - top left */}
+      <div className="fixed top-4 left-4 z-[95] glass px-3 py-1.5 flex items-center gap-1.5">
+        <span className="text-sm">🔑</span>
+        <span className={`text-sm font-black ${keys > 0 ? 'text-amber-400' : 'text-red-400'}`}>{keys}</span>
+      </div>
+
       <motion.div
         initial={{ scale: 0.85, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
@@ -58,13 +64,6 @@ export default function GameOver({ stats, onReplay, keys = 0 }) {
             <span className="text-xs text-white/60">🔥 คอมโบสูงสุด</span>
             <span className="font-nunito font-black text-amber-400">x{maxMult}</span>
           </div>
-        </div>
-
-        {/* Key Display */}
-        <div className="flex items-center justify-center gap-1.5 mb-4">
-          <span className="text-sm">🔑</span>
-          <span className={`text-sm font-black ${keys > 0 ? 'text-amber-400' : 'text-red-400'}`}>{keys}</span>
-          <span className="text-[10px] text-white/40">Key เหลือ</span>
         </div>
 
         {/* Actions */}

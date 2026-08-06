@@ -79,10 +79,13 @@ router.post('/register', async (req, res) => {
         return res.status(400).json({ error: 'ชื่อนี้มีผู้ใช้งานแล้ว กรุณาใช้ชื่ออื่น 🧪' });
     }
 
+    const FREE_KEYS = 3;
+
     data.players[key] = {
         playerId: key,
         nickname: cleanNickname,
         avatar: cleanAvatar,
+        keys: FREE_KEYS,
         ip,
         registeredAt: new Date().toISOString(),
         lastSeen: new Date().toISOString()
@@ -93,7 +96,7 @@ router.post('/register', async (req, res) => {
         try {
             await Player.findOneAndUpdate(
                 { playerId: key },
-                { playerId: key, nickname: cleanNickname, avatar: cleanAvatar, ip, lastSeen: new Date() },
+                { playerId: key, nickname: cleanNickname, avatar: cleanAvatar, keys: FREE_KEYS, ip, lastSeen: new Date() },
                 { upsert: true, new: true, setDefaultsOnInsert: true }
             );
         } catch (err) {
@@ -101,7 +104,7 @@ router.post('/register', async (req, res) => {
         }
     }
 
-    res.json({ success: true, nickname: cleanNickname, avatar: cleanAvatar, key });
+    res.json({ success: true, nickname: cleanNickname, avatar: cleanAvatar, keys: FREE_KEYS, key });
 });
 
 // Submit score

@@ -242,13 +242,12 @@ export default function Game() {
 
   return (
     <div className="relative z-10 min-h-screen">
-      {/* HUD */}
+      {/* HUD + TopWidget */}
       {gameState !== 'idle' && (
-        <HUD score={score} combo={combo} lives={lives} cardTimeLeft={cardTimeLeft} cardMaxTime={cardMaxTime} />
+        <HUD score={score} combo={combo} lives={lives} cardTimeLeft={cardTimeLeft} cardMaxTime={cardMaxTime}>
+          <TopWidget />
+        </HUD>
       )}
-
-      {/* Top Widget */}
-      <TopWidget />
 
       {/* Main Game Area */}
       <div className="flex items-center justify-center min-h-screen">

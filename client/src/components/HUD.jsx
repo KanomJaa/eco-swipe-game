@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { getMultiplier } from '../data/items';
 
-export default function HUD({ score, combo, lives, cardTimeLeft, cardMaxTime }) {
+export default function HUD({ score, combo, lives, cardTimeLeft, cardMaxTime, children }) {
   const mult = getMultiplier(combo);
   const pct = cardMaxTime > 0 ? cardTimeLeft / cardMaxTime : 1;
 
@@ -15,7 +15,10 @@ export default function HUD({ score, combo, lives, cardTimeLeft, cardMaxTime }) 
     : 'text-white/60';
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-40 px-3 pt-4 pb-1 safe-top">
+    <header
+      className="fixed top-0 left-0 right-0 z-40 px-3 pb-2"
+      style={{ paddingTop: 'calc(1rem + env(safe-area-inset-top, 0px))' }}
+    >
       {/* Row 1: Score | Timer | Combo */}
       <div className="flex items-center gap-2 max-w-lg mx-auto">
         <div className="glass px-2 py-1.5 text-center flex-1 min-w-0 !rounded-xl">
@@ -60,7 +63,7 @@ export default function HUD({ score, combo, lives, cardTimeLeft, cardMaxTime }) 
         />
       </div>
 
-      {/* Row 3: Lives (left) — TopWidget renders separately (right) */}
+      {/* Row 3: Lives (left) + TopWidget slot (right) */}
       <div className="flex items-center justify-between max-w-lg mx-auto mt-2">
         <div className="flex gap-0.5">
           {[0, 1, 2].map(i => (
@@ -72,7 +75,7 @@ export default function HUD({ score, combo, lives, cardTimeLeft, cardMaxTime }) 
             </span>
           ))}
         </div>
-        {/* Right side space reserved for TopWidget */}
+        {children}
       </div>
     </header>
   );

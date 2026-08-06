@@ -16,18 +16,17 @@ export default function GameOver({ stats, onReplay, keys = 0 }) {
     >
       <Confetti />
 
-      {/* Key Badge - top left */}
-      <div className="fixed top-4 left-4 z-[95] glass px-3 py-1.5 flex items-center gap-1.5">
-        <span className="text-sm">🔑</span>
-        <span className={`text-sm font-black ${keys > 0 ? 'text-amber-400' : 'text-red-400'}`}>{keys}</span>
-      </div>
-
       <motion.div
         initial={{ scale: 0.85, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ duration: 0.25, ease: 'easeOut' }}
-        className="bg-[#1a1030]/95 border border-white/10 rounded-3xl p-6 w-full max-w-xs text-center shadow-[0_0_40px_rgba(139,92,246,0.15)]"
+        className="relative bg-[#1a1030]/95 border border-white/10 rounded-3xl p-6 w-full max-w-xs text-center shadow-[0_0_40px_rgba(139,92,246,0.15)]"
       >
+        {/* Key Badge - top left of card */}
+        <div className="absolute top-3 left-3 px-2.5 py-1 rounded-xl bg-white/5 border border-white/10 flex items-center gap-1.5">
+          <span className="text-xs">🔑</span>
+          <span className={`text-xs font-black ${keys > 0 ? 'text-amber-400' : 'text-red-400'}`}>{keys}</span>
+        </div>
         {/* Top Badge or Emoji */}
         {newTopRank ? (
           <div>

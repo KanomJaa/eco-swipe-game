@@ -29,3 +29,21 @@ export async function fetchLeaderboard() {
   const res = await fetch('/api/leaderboard');
   return res.json();
 }
+
+export async function redeemCode(code) {
+  const res = await fetch('/api/redeem-code', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ playerId: getPlayerId(), code }),
+  });
+  return res.json();
+}
+
+export async function useKey() {
+  const res = await fetch('/api/use-key', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ playerId: getPlayerId() }),
+  });
+  return res.json();
+}

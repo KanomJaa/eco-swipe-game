@@ -6,7 +6,8 @@ const playerSchema = new mongoose.Schema({
     avatar: { type: String, default: 'icons/male_1.png' },
     ip: { type: String },
     registeredAt: { type: Date, default: Date.now },
-    lastSeen: { type: Date, default: Date.now }
+    lastSeen: { type: Date, default: Date.now },
+    keys: { type: Number, default: 0 }
 });
 
 const scoreSchema = new mongoose.Schema({
@@ -19,5 +20,14 @@ const scoreSchema = new mongoose.Schema({
     playedAt: { type: Date, default: Date.now }
 });
 
+const codeSchema = new mongoose.Schema({
+    code: { type: String, required: true, unique: true },
+    keysPerRedeem: { type: Number, default: 3 },
+    maxUses: { type: Number, default: 0 }, // 0 = unlimited
+    usedBy: [{ type: String }], // playerIds that redeemed
+    createdAt: { type: Date, default: Date.now }
+});
+
 export const Player = mongoose.model('Player', playerSchema);
 export const Score = mongoose.model('Score', scoreSchema);
+export const Code = mongoose.model('Code', codeSchema);

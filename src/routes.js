@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { db } from './db.js';
-import { Player, Score } from './models.js';
+import { Player, Score, Code } from './models.js';
 import { loadData, saveData, getClientIP, getPlayerKey } from './helpers.js';
 
 const router = Router();
@@ -25,7 +25,7 @@ router.get('/player', async (req, res) => {
                 player = await Player.findOne({ ip });
             }
             if (player) {
-                return res.json({ registered: true, nickname: player.nickname, avatar: player.avatar || 'icons/male_1.png', key });
+                return res.json({ registered: true, nickname: player.nickname, avatar: player.avatar || 'icons/male_1.png', keys: player.keys || 0, key });
             }
             return res.json({ registered: false, key });
         } catch (err) {
@@ -36,7 +36,7 @@ router.get('/player', async (req, res) => {
     const data = loadData();
     const player = data.players[key] || (key === ip ? data.players[ip] : null);
     if (player) {
-        res.json({ registered: true, nickname: player.nickname, avatar: player.avatar || 'icons/male_1.png', key });
+        res.json({ registered: true, nickname: player.nickname, avatar: player.avatar || 'icons/male_1.png', keys: player.keys || 0, key });
     } else {
         res.json({ registered: false, key });
     }
@@ -258,6 +258,148 @@ router.get('/leaderboard', async (req, res) => {
         });
 
     res.json(leaderboard);
+});
+
+// Redeem a code to get keys
+router.post('/redeem-code', async (req, res) => {
+    const key = getPlayerKey(req);
+    const { code } = req.body;
+
+    if (!code || !code.trim()) {
+        return res.status(400).json({ error: 'กรุณาใส่โค้ด' });
+    }
+
+    const cleanCode = code.trim().toUpperCase();
+    const data = loadData();
+
+    if (db.connected) {
+        try {
+            const codeDoc = await Code.findOne({ code: cleanCode });
+            if (!codeDoc) {
+                return res.status(400).json({ error: 'โค้ดไม่ถูกต้อง' });
+            }
+            if (codeDoc.usedBy.includes(key)) {
+                return res.status(400).json({ error: 'คุณใช้โค้ดนี้ไปแล้ว' });
+            }
+            if (codeDoc.maxUses > 0 && codeDoc.usedBy.length >= codeDoc.maxUses) {
+                return res.status(400).json({ error: 'โค้ดนี้ถูกใช้ครบจำนวนแล้ว' });
+            }
+
+            codeDoc.usedBy.push(key);
+            await codeDoc.save();
+
+            const player = await Player.findOne({ playerId: key });
+            if (player) {
+                player.keys = (player.keys || 0) + codeDoc.keysPerRedeem;
+                await player.save();
+
+                // Sync to JSON
+                if (data.players[key]) {
+                    data.players[key].keys = player.keys;
+                    saveData(data);
+                }
+
+                return res.json({ success: true, keysAdded: codeDoc.keysPerRedeem, totalKeys: player.keys });
+            }
+            return res.status(400).json({ error: 'ยังไม่ได้ลงทะเบียน' });
+        } catch (err) {
+            console.error('Mongo Error on /api/redeem-code:', err.message);
+        }
+    }
+
+    // JSON fallback
+    if (!data.codes) data.codes = {};
+    const codeData = data.codes[cleanCode];
+    if (!codeData) {
+        return res.status(400).json({ error: 'โค้ดไม่ถูกต้อง' });
+    }
+    if (!codeData.usedBy) codeData.usedBy = [];
+    if (codeData.usedBy.includes(key)) {
+        return res.status(400).json({ error: 'คุณใช้โค้ดนี้ไปแล้ว' });
+    }
+    if (codeData.maxUses > 0 && codeData.usedBy.length >= codeData.maxUses) {
+        return res.status(400).json({ error: 'โค้ดนี้ถูกใช้ครบจำนวนแล้ว' });
+    }
+
+    codeData.usedBy.push(key);
+    const player = data.players[key];
+    if (!player) {
+        return res.status(400).json({ error: 'ยังไม่ได้ลงทะเบียน' });
+    }
+    player.keys = (player.keys || 0) + (codeData.keysPerRedeem || 3);
+    saveData(data);
+
+    res.json({ success: true, keysAdded: codeData.keysPerRedeem || 3, totalKeys: player.keys });
+});
+
+// Use 1 key to play
+router.post('/use-key', async (req, res) => {
+    const key = getPlayerKey(req);
+    const data = loadData();
+
+    if (db.connected) {
+        try {
+            const player = await Player.findOne({ playerId: key });
+            if (!player) return res.status(400).json({ error: 'ยังไม่ได้ลงทะเบียน' });
+            if ((player.keys || 0) <= 0) return res.status(400).json({ error: 'ไม่มี Key เหลือ' });
+
+            player.keys -= 1;
+            await player.save();
+
+            if (data.players[key]) {
+                data.players[key].keys = player.keys;
+                saveData(data);
+            }
+
+            return res.json({ success: true, keysLeft: player.keys });
+        } catch (err) {
+            console.error('Mongo Error on /api/use-key:', err.message);
+        }
+    }
+
+    const player = data.players[key];
+    if (!player) return res.status(400).json({ error: 'ยังไม่ได้ลงทะเบียน' });
+    if ((player.keys || 0) <= 0) return res.status(400).json({ error: 'ไม่มี Key เหลือ' });
+
+    player.keys -= 1;
+    saveData(data);
+    res.json({ success: true, keysLeft: player.keys });
+});
+
+// Admin: Generate codes
+router.post('/generate-codes', async (req, res) => {
+    const { codes, keysPerRedeem = 3, maxUses = 0 } = req.body;
+
+    if (!codes || !Array.isArray(codes) || codes.length === 0) {
+        return res.status(400).json({ error: 'ต้องส่ง codes เป็น array' });
+    }
+
+    const created = [];
+    const data = loadData();
+    if (!data.codes) data.codes = {};
+
+    for (const c of codes) {
+        const cleanCode = c.trim().toUpperCase();
+        if (!cleanCode) continue;
+
+        if (db.connected) {
+            try {
+                await Code.findOneAndUpdate(
+                    { code: cleanCode },
+                    { code: cleanCode, keysPerRedeem, maxUses, usedBy: [] },
+                    { upsert: true, new: true }
+                );
+            } catch (err) {
+                console.error('Mongo Error creating code:', err.message);
+            }
+        }
+
+        data.codes[cleanCode] = { code: cleanCode, keysPerRedeem, maxUses, usedBy: [], createdAt: new Date().toISOString() };
+        created.push(cleanCode);
+    }
+
+    saveData(data);
+    res.json({ success: true, created });
 });
 
 // Reset all data

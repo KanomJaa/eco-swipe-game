@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ITEMS, GAME_CONSTANTS, getMultiplier, getCardTimeLimit } from '../data/items';
-import { checkPlayer, submitScore } from '../utils/api';
+import { checkPlayer, submitScore, redeemCode, useKey } from '../utils/api';
 import HUD from '../components/HUD';
 import SwipeCard from '../components/SwipeCard';
 import ComboPopup from '../components/ComboPopup';
@@ -34,6 +34,11 @@ export default function Game() {
   const [showSavedResult, setShowSavedResult] = useState(false);
   const [playerNickname, setPlayerNickname] = useState('');
   const [playerAvatar, setPlayerAvatar] = useState('');
+  const [keys, setKeys] = useState(0);
+  const [codeInput, setCodeInput] = useState('');
+  const [codeError, setCodeError] = useState('');
+  const [codeSuccess, setCodeSuccess] = useState('');
+  const [redeeming, setRedeeming] = useState(false);
 
   const itemsRef = useRef([]);
   const cardTimerRef = useRef(null);
@@ -65,6 +70,7 @@ export default function Game() {
           setVerified(true);
           setPlayerNickname(data.nickname || sessionStorage.getItem('playerNickname') || '');
           setPlayerAvatar(data.avatar || sessionStorage.getItem('playerAvatar') || 'icons/male_1.png');
+          setKeys(data.keys || 0);
           // Check for saved result (returning from leaderboard)
           const params = new URLSearchParams(window.location.search);
           if (params.get('showResult') === '1') {
@@ -117,7 +123,14 @@ export default function Game() {
     cardTimerRef.current = requestAnimationFrame(tick);
   }, []);
 
-  function startGame() {
+  async function startGame() {
+    if (keys <= 0) return;
+    try {
+      const result = await useKey();
+      if (result.error) return;
+      setKeys(result.keysLeft);
+    } catch { return; }
+
     sessionStorage.removeItem('lastGameSummary');
     setScore(0); setCombo(0); setMaxCombo(0); setCorrect(0); setWrong(0); setLives(3);
     scoreRef.current = 0; comboRef.current = 0; livesRef.current = 3; correctRef.current = 0; wrongRef.current = 0;
@@ -296,9 +309,53 @@ export default function Game() {
               </div>
             </div>
 
+            {/* Key Display */}
+            <div className="flex items-center justify-center gap-2 mb-4">
+              <span className="text-2xl">🔑</span>
+              <span className={`text-xl font-black ${keys > 0 ? 'text-amber-400' : 'text-red-400'}`}>{keys}</span>
+              <span className="text-xs text-white/40">Key เหลือ</span>
+            </div>
+
+            {/* Code Redemption */}
+            <div className="glass p-4 mb-5 max-w-xs mx-auto">
+              <p className="text-xs text-white/40 mb-2">ใส่โค้ดเพื่อรับ Key</p>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={codeInput}
+                  onChange={e => { setCodeInput(e.target.value.toUpperCase()); setCodeError(''); setCodeSuccess(''); }}
+                  placeholder="ใส่โค้ด..."
+                  maxLength={20}
+                  className="flex-1 px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-sm placeholder:text-white/20 focus:border-violet-500/50 focus:outline-none"
+                />
+                <button
+                  onClick={async () => {
+                    if (!codeInput.trim() || redeeming) return;
+                    setRedeeming(true); setCodeError(''); setCodeSuccess('');
+                    try {
+                      const result = await redeemCode(codeInput.trim());
+                      if (result.error) { setCodeError(result.error); }
+                      else { setCodeSuccess(`+${result.keysAdded} Key!`); setKeys(result.totalKeys); setCodeInput(''); }
+                    } catch { setCodeError('เกิดข้อผิดพลาด'); }
+                    setRedeeming(false);
+                  }}
+                  disabled={redeeming || !codeInput.trim()}
+                  className="px-4 py-2 rounded-xl bg-violet-600 hover:bg-violet-500 text-sm font-bold text-white disabled:opacity-40 transition-colors"
+                >
+                  {redeeming ? '...' : 'ใช้'}
+                </button>
+              </div>
+              {codeError && <p className="text-xs text-red-400 mt-2">{codeError}</p>}
+              {codeSuccess && <p className="text-xs text-emerald-400 mt-2">{codeSuccess}</p>}
+            </div>
+
             {/* Start Button */}
-            <button onClick={startGame} className="btn-gradient text-lg px-12">
-              เริ่มเกม! ✨
+            <button
+              onClick={startGame}
+              disabled={keys <= 0}
+              className={`text-lg px-12 ${keys > 0 ? 'btn-gradient' : 'py-3 rounded-2xl bg-white/5 text-white/30 cursor-not-allowed border border-white/10'}`}
+            >
+              {keys > 0 ? 'เริ่มเกม! ✨' : '🔒 ไม่มี Key'}
             </button>
           </motion.div>
         )}

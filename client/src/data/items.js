@@ -33,6 +33,10 @@ export const ITEMS = [
   { name: 'โทรทัศน์จอแก้วเก่า', type: 'hazard', hint: 'ขยะอิเล็กทรอนิกส์/สารพิษ', icon: '/icons/tv.webp' },
   { name: 'น้ำยาล้างห้องน้ำ', type: 'hazard', hint: 'กรดกัดกร่อนรุนแรง', icon: '/icons/clean-up.webp' },
   { name: 'ถ่านไฟฉาย', type: 'hazard', hint: 'โลหะหนัก/ตะกั่ว/ปรอท', icon: '/icons/battery.webp' },
+  { name: 'แกลลอนน้ำมันเครื่อง', type: 'hazard', hint: 'ปิโตรเลียม/ไวไฟ', icon: '/icons/engine-oil.webp' },
+  { name: 'น้ำยาหล่อเย็นเครื่องยนต์', type: 'hazard', hint: 'สารเคมีเอทิลีนไกลคอล', icon: '/icons/premixed-coolant.webp' },
+  { name: 'สเปรย์กำจัดแมลง (ไบกอน)', type: 'hazard', hint: 'แก๊สอัดความดัน/สารพิษ', icon: '/icons/baygon.webp' },
+  { name: 'สเปรย์กำจัดปลวก (เชนไดร้ท์)', type: 'hazard', hint: 'แก๊สอัดความดัน/สารพิษ', icon: '/icons/chaindrite.webp' },
 ];
 
 export const GAME_CONSTANTS = {

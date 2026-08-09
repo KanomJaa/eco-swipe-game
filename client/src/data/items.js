@@ -65,3 +65,13 @@ export function getCardTimeLimit(score) {
   if (score < 8000) return 1.2;
   return 1.0;
 }
+
+export function preloadAllImages() {
+  if (typeof window === 'undefined') return;
+  ITEMS.forEach(item => {
+    if (item.icon) {
+      const img = new Image();
+      img.src = item.icon;
+    }
+  });
+}

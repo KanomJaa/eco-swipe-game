@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ITEMS, GAME_CONSTANTS, getMultiplier, getCardTimeLimit } from '../data/items';
+import { ITEMS, GAME_CONSTANTS, getMultiplier, getCardTimeLimit, preloadAllImages } from '../data/items';
 import { checkPlayer, submitScore, redeemCode, useKey } from '../utils/api';
 import HUD from '../components/HUD';
 import SwipeCard from '../components/SwipeCard';
@@ -60,8 +60,9 @@ export default function Game() {
   useEffect(() => { correctRef.current = correct; }, [correct]);
   useEffect(() => { wrongRef.current = wrong; }, [wrong]);
 
-  // Verify player
+  // Verify player & Preload images
   useEffect(() => {
+    preloadAllImages();
     checkPlayer()
       .then(data => {
         if (!data.registered || !data.nickname) {
@@ -81,7 +82,7 @@ export default function Game() {
                 setGameOverStats(JSON.parse(saved));
                 setShowSavedResult(true);
                 setGameState('over');
-              } catch {}
+              } catch { }
             }
           }
         }
@@ -376,41 +377,37 @@ export default function Game() {
             transition={{ duration: 0.35, ease: 'easeOut' }}
             className="fixed top-[30%] left-0 right-0 z-50 pointer-events-none flex justify-center"
           >
-            <div className={`px-6 py-3 rounded-2xl border backdrop-blur-sm flex items-center gap-3 shadow-lg ${
-              toast.type === 'correct'
-                ? 'bg-emerald-500/20 border-emerald-400/30 shadow-emerald-500/20'
-                : toast.type === 'wrong'
+            <div className={`px-6 py-3 rounded-2xl border backdrop-blur-sm flex items-center gap-3 shadow-lg ${toast.type === 'correct'
+              ? 'bg-emerald-500/20 border-emerald-400/30 shadow-emerald-500/20'
+              : toast.type === 'wrong'
                 ? 'bg-red-500/20 border-red-400/30 shadow-red-500/20'
                 : 'bg-amber-500/20 border-amber-400/30 shadow-amber-500/20'
-            }`}>
+              }`}>
               {/* Icon */}
-              <div className={`w-10 h-10 rounded-full flex items-center justify-center text-lg font-black ${
-                toast.type === 'correct'
-                  ? 'bg-emerald-500/30 text-emerald-300'
-                  : toast.type === 'wrong'
+              <div className={`w-10 h-10 rounded-full flex items-center justify-center text-lg font-black ${toast.type === 'correct'
+                ? 'bg-emerald-500/30 text-emerald-300'
+                : toast.type === 'wrong'
                   ? 'bg-red-500/30 text-red-300'
                   : 'bg-amber-500/30 text-amber-300'
-              }`}>
+                }`}>
                 {toast.type === 'correct' ? '✓' : toast.type === 'wrong' ? '✗' : '⏰'}
               </div>
               {/* Text */}
               <div className="flex flex-col">
-                <span className={`text-xs font-bold ${
-                  toast.type === 'correct'
-                    ? 'text-emerald-300'
-                    : toast.type === 'wrong'
+                <span className={`text-xs font-bold ${toast.type === 'correct'
+                  ? 'text-emerald-300'
+                  : toast.type === 'wrong'
                     ? 'text-red-300'
                     : 'text-amber-300'
-                }`}>
+                  }`}>
                   {toast.type === 'correct' ? 'ถูกต้อง!' : toast.type === 'wrong' ? 'ผิด!' : 'หมดเวลา!'}
                 </span>
-                <span className={`text-lg font-black ${
-                  toast.type === 'correct'
-                    ? 'text-emerald-400'
-                    : toast.type === 'wrong'
+                <span className={`text-lg font-black ${toast.type === 'correct'
+                  ? 'text-emerald-400'
+                  : toast.type === 'wrong'
                     ? 'text-red-400'
                     : 'text-amber-400'
-                }`}>
+                  }`}>
                   {toast.text}
                 </span>
               </div>

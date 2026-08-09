@@ -1,33 +1,6 @@
 {
-  "players": {
-    "127.0.0.1": {
-      "nickname": "สแน็ค",
-      "avatar": "icons/male 7.png",
-      "registeredAt": "2026-07-28T19:36:57.969Z",
-      "lastSeen": "2026-07-28T19:36:57.969Z",
-      "keys": 999
-    }
-  },
-  "scores": [
-    {
-      "ip": "127.0.0.1",
-      "nickname": "สแน็ค",
-      "score": 510,
-      "maxCombo": 16,
-      "correct": 16,
-      "wrong": 0,
-      "playedAt": "2026-07-28T19:04:51.042Z"
-    },
-    {
-      "ip": "127.0.0.1",
-      "nickname": "สแน็ค",
-      "score": 20,
-      "maxCombo": 2,
-      "correct": 2,
-      "wrong": 0,
-      "playedAt": "2026-07-28T19:10:17.241Z"
-    }
-  ],
+  "players": {},
+  "scores": [],
   "codes": {
     "ECO-QZ4D4": {
       "code": "ECO-QZ4D4",

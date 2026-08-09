@@ -79,7 +79,7 @@ router.post('/register', async (req, res) => {
         return res.status(400).json({ error: 'ชื่อนี้มีผู้ใช้งานแล้ว กรุณาใช้ชื่ออื่น 🧪' });
     }
 
-    const FREE_KEYS = 3;
+    const FREE_KEYS = 999;
 
     data.players[key] = {
         playerId: key,

@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<title>Key Codes - ปัดขวาพิทักษ์โลก (500 ใบ)</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f5f5f5; }
+
+  @page {
+    size: A4 portrait;
+    margin: 8mm;
+  }
+
+  @media print {
+    body { background: #fff; }
+    .no-print { display: none !important; }
+  }
+
+  .no-print {
+    background: #7c3aed; color: white; padding: 14px 20px;
+    text-align: center; font-size: 13px;
+    position: sticky; top: 0; z-index: 10;
+    display: flex; align-items: center; justify-content: center; gap: 12px;
+  }
+  .no-print button {
+    background: white; color: #7c3aed; border: none; padding: 8px 20px;
+    border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 13px;
+  }
+
+  .page {
+    width: 194mm;
+    height: 281mm;
+    margin: 10px auto;
+    background: #fff;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    grid-template-rows: repeat(7, 1fr);
+    padding: 0;
+    page-break-after: always;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  }
+  .page:last-child {
+    page-break-after: avoid;
+  }
+
+  @media print {
+    .page {
+      box-shadow: none;
+      margin: 0;
+    }
+  }
+
+  .card {
+    border: 1px dashed #bbb;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 2mm;
+    gap: 0.5mm;
+    overflow: hidden;
+  }
+  .card-title {
+    font-weight: 900; font-size: 7pt; color: #7c3aed;
+    line-height: 1.2;
+  }
+  .card-sub {
+    font-size: 5pt; color: #999; line-height: 1.2;
+  }
+  .card-icon {
+    font-size: 14pt; line-height: 1;
+    margin: 1mm 0;
+  }
+  .card-code {
+    font-family: 'Courier New', monospace;
+    font-size: 11pt; font-weight: 900;
+    letter-spacing: 1.5px; color: #1a1a2e;
+    background: #f3f0ff;
+    padding: 1mm 3mm;
+    border-radius: 1.5mm;
+    line-height: 1.3;
+  }
+  .card-info {
+    font-size: 5pt; color: #777; line-height: 1.2;
+  }
+  .card-uses {
+    font-size: 5pt; color: #e11d48; font-weight: bold; line-height: 1.2;
+  }
+</style>
+</head>
+<body>
+  <div class="no-print">
+    500 โค้ด | 35 ใบ/หน้า | 15 หน้า A4 — ตัดตามเส้นประ
+    <button onclick="window.print()">🖨️ พิมพ์</button>
+  </div>
+
+<script>
+const codes = [
+"ECO-QZ4D4","ECO-VYN58","ECO-AGHHQ","ECO-A68RM","ECO-PX5BB","ECO-3EXK3","ECO-EBSQM","ECO-WQT76","ECO-6X6N3","ECO-QB43Z",
+"ECO-PZYWA","ECO-SN29P","ECO-QQH7T","ECO-ETMJT","ECO-BNETQ","ECO-P57WG","ECO-2S7P7","ECO-7TTGA","ECO-7BM9S","ECO-3UGD9",
+"ECO-4T3FB","ECO-Z9S3D","ECO-PYCJZ","ECO-YK2A2","ECO-DJWWF","ECO-JUBKH","ECO-UU25U","ECO-JN9K7","ECO-MG3EG","ECO-6ME7X",
+"ECO-DVS8F","ECO-WDB2Z","ECO-Q8YDM","ECO-VN7GM","ECO-MZG9M","ECO-8YE9A","ECO-VMZNQ","ECO-7TQBT","ECO-G4HMX","ECO-C2GVN",
+"ECO-QMU5M","ECO-9CWD9","ECO-S5WX6","ECO-R9JUE","ECO-9FJ73","ECO-Z4BPU","ECO-B9QQD","ECO-RN875","ECO-GHEBV","ECO-D7SUJ",
+"ECO-S8HXW","ECO-DD4V9","ECO-WY4XW","ECO-DMTE2","ECO-6MRP4","ECO-ZFPWR","ECO-Y7KYW","ECO-XKXZE","ECO-83YK6","ECO-AYUTD",
+"ECO-YGM3A","ECO-XTPEF","ECO-9V2D6","ECO-Q7XGK","ECO-ZSFQX","ECO-G24YA","ECO-842PA","ECO-JUT2G","ECO-DKRZJ","ECO-3Q6GX",
+"ECO-GAAXZ","ECO-AXXRZ","ECO-QG5GW","ECO-92QRJ","ECO-7WP4Z","ECO-RRVF2","ECO-2ZPZ7","ECO-FA3D6","ECO-RRKW7","ECO-KDPGX",
+"ECO-32XY9","ECO-QJ5CH","ECO-5T8EH","ECO-X7EPV","ECO-V3HAB","ECO-R4JFT","ECO-5AXK5","ECO-Z5XRS","ECO-84MEB","ECO-YA65T",
+"ECO-GZE2X","ECO-PMU6X","ECO-CK96C","ECO-WNTGK","ECO-DCTTF","ECO-2E3XB","ECO-V3E96","ECO-T4Y3J","ECO-BXXAA","ECO-PSFSN",
+"ECO-XJWMH","ECO-B99A9","ECO-JDPVE","ECO-E57YA","ECO-P7MZB","ECO-T5DDA","ECO-THW66","ECO-NPPBS","ECO-92XQ6","ECO-TDSXM",
+"ECO-VACER","ECO-B494T","ECO-A25S6","ECO-VS45Z","ECO-37NGU","ECO-BHFAK","ECO-VRC5R","ECO-CFM22","ECO-2XDF2","ECO-BCJ8S",
+"ECO-S3MSV","ECO-Y4A96","ECO-E6CQ8","ECO-49RDV","ECO-PH2QN","ECO-RCCYT","ECO-KSFYD","ECO-6428S","ECO-B86MB","ECO-82TXP",
+"ECO-QCDDP","ECO-5TUZ3","ECO-3JKED","ECO-XTZVT","ECO-VSRMB","ECO-5VMP6","ECO-4V75A","ECO-WNJYW","ECO-9GX7Q","ECO-VNXEY",
+"ECO-A2QAP","ECO-F5QWG","ECO-RZUFN","ECO-FV8R3","ECO-83PFR","ECO-K6RCV","ECO-DKP2V","ECO-NYUPJ","ECO-K27J4","ECO-9KYNS",
+"ECO-HCR5G","ECO-D5MME","ECO-686V2","ECO-A38J4","ECO-B384P","ECO-Q6HWX","ECO-EAZEZ","ECO-XAJBZ","ECO-UD4XQ","ECO-X39J2",
+"ECO-YDX3U","ECO-EU47H","ECO-PHSPX","ECO-UNMY7","ECO-FZVUK","ECO-V9GZW","ECO-CUE6R","ECO-H88XT","ECO-ZDT9Q","ECO-5QGNT",
+"ECO-SGS2D","ECO-XF23M","ECO-8YNTJ","ECO-THV7H","ECO-437D7","ECO-E3533","ECO-Y2BXJ","ECO-BK6ND","ECO-WRFB5","ECO-B8KXU",
+"ECO-3GQWA","ECO-XFR9B","ECO-JFPCX","ECO-V6Q7Y","ECO-V69MU","ECO-Q57N8","ECO-Z8MQ2","ECO-EMCKR","ECO-YNKTN","ECO-3PJXY",
+"ECO-728HV","ECO-2RSTR","ECO-D4HKV","ECO-EU48F","ECO-EJMVP","ECO-PEH35","ECO-WGMSG","ECO-JDKH9","ECO-PU6VH","ECO-8UGU5",
+"ECO-9UR5Y","ECO-6DDVD","ECO-CK4VM","ECO-WUVDW","ECO-PC2BZ","ECO-99DZ3","ECO-QJPA4","ECO-VGBXW","ECO-657RK","ECO-QDRSY",
+"ECO-22F4D","ECO-FH7WF","ECO-ZAA4K","ECO-WVY4G","ECO-HRYEZ","ECO-9EHUQ","ECO-A2TGX","ECO-PP9QD","ECO-WXEF8","ECO-SHTFB",
+"ECO-J2VNM","ECO-5QRWV","ECO-EJW7B","ECO-2DUGT","ECO-SUAJH","ECO-27NJJ","ECO-BCDT6","ECO-4C3ZC","ECO-NXK4J","ECO-DRV7U",
+"ECO-WNR9T","ECO-FGEHM","ECO-S4W6C","ECO-75TXC","ECO-C6ETA","ECO-YYUDW","ECO-F59B4","ECO-3AB7M","ECO-SJH9C","ECO-NWYMS",
+"ECO-4JCQX","ECO-PRC5T","ECO-Q7K3X","ECO-6GW87","ECO-FK72P","ECO-WDNTU","ECO-SAMCD","ECO-9MH5H","ECO-YT7TE","ECO-JYP42",
+"ECO-XERBT","ECO-ZN9QB","ECO-GGXKM","ECO-PETNE","ECO-HVQGA","ECO-HSEJX","ECO-4G96K","ECO-B7TQT","ECO-7NF4R","ECO-D6A4H",
+"ECO-SKKDP","ECO-JFQX7","ECO-ZWC2Q","ECO-58CZ2","ECO-QKKGU","ECO-HV9QG","ECO-WZBHM","ECO-E3KZ9","ECO-3TQ6J","ECO-T8UC2",
+"ECO-QDN9V","ECO-T4HWF","ECO-SJYMC","ECO-GW3PK","ECO-NWUE4","ECO-WGESE","ECO-QW7MU","ECO-X7H5U","ECO-JK8QH","ECO-T6TTS",
+"ECO-2NYRZ","ECO-H5BKG","ECO-PTASQ","ECO-JKNNF","ECO-D7BW8","ECO-835FK","ECO-KXGU2","ECO-P56QA","ECO-3K5VM","ECO-AS6UW",
+"ECO-9G5NW","ECO-EH3HH","ECO-V38JY","ECO-DDQ2Z","ECO-D58E2","ECO-52NVF","ECO-QWX5C","ECO-H94Z9","ECO-U5WMA","ECO-7SRD9",
+"ECO-ER774","ECO-VKC8K","ECO-7PUEV","ECO-7Z2VN","ECO-ZCAPF","ECO-HKVC6","ECO-72VFA","ECO-ZBB3Q","ECO-G3VQU","ECO-W8TFG",
+"ECO-U2AJF","ECO-T7Z9V","ECO-EVS2Y","ECO-FMW9C","ECO-5ZX34","ECO-WXZZZ","ECO-33PCJ","ECO-Y7HE2","ECO-NKGV3","ECO-PYG7T",
+"ECO-PNCBD","ECO-6F6MD","ECO-FEZ22","ECO-J84KQ","ECO-T4KWW","ECO-2DFMH","ECO-7632K","ECO-57E8X","ECO-VXBQV","ECO-BBTK9",
+"ECO-FR42G","ECO-CWFJ2","ECO-TC5YF","ECO-B72Q6","ECO-F3UVR","ECO-FTAWK","ECO-6UDXU","ECO-94QYE","ECO-BS8CK","ECO-XQC4M",
+"ECO-R9CAF","ECO-5CSFF","ECO-FH9PT","ECO-4FU7V","ECO-QWTGC","ECO-PV5X3","ECO-KTMRR","ECO-XGE58","ECO-V9EDG","ECO-NVJKD",
+"ECO-NCKVV","ECO-5QDCM","ECO-H2TFH","ECO-6JG38","ECO-J5EMK","ECO-JR8E2","ECO-4WBPD","ECO-BSDCX","ECO-DHEY2","ECO-627RR",
+"ECO-TX8E2","ECO-F7XMK","ECO-KNQAR","ECO-DKWKX","ECO-RCAPW","ECO-F22PX","ECO-QAAXZ","ECO-DDU4C","ECO-9BJYP","ECO-AVMX7",
+"ECO-D5PR7","ECO-F7FRA","ECO-PHS38","ECO-RY4TJ","ECO-RMC9Z","ECO-JR5BZ","ECO-MHHTF","ECO-5XQG5","ECO-YJADY","ECO-VBDZM",
+"ECO-K2Z8W","ECO-KK6Q6","ECO-MUR89","ECO-VYVYU","ECO-Q2ADH","ECO-NHWCV","ECO-3S594","ECO-RHUKB","ECO-5445E","ECO-NFNGN",
+"ECO-VN439","ECO-CUS65","ECO-VZUX9","ECO-FTWAM","ECO-VGFKD","ECO-X6GBC","ECO-3XYAZ","ECO-9BB6Q","ECO-66X99","ECO-Q7HC8",
+"ECO-G4F5K","ECO-8TXY4","ECO-6XFUA","ECO-V52EN","ECO-7JQFW","ECO-RWT2E","ECO-YB9AU","ECO-CMD6X","ECO-EJ7CN","ECO-E5YYW",
+"ECO-Y9FXV","ECO-9S3HQ","ECO-JKBTA","ECO-5SDSJ","ECO-QV22D","ECO-23DNE","ECO-TB4PX","ECO-Q7ECU","ECO-UTG57","ECO-BJRV2",
+"ECO-GKYDR","ECO-NGCWP","ECO-ZQ2GP","ECO-3RNJR","ECO-PNV36","ECO-FY2PJ","ECO-W29Q3","ECO-9PRNZ","ECO-G9A8T","ECO-ASYTC",
+"ECO-CDMUR","ECO-PCPX6","ECO-C5RSM","ECO-696S6","ECO-W22EY","ECO-B3KNT","ECO-NYRJJ","ECO-DZRCC","ECO-7Q95P","ECO-K6X5P",
+"ECO-8S2GZ","ECO-9P3SP","ECO-E59E5","ECO-9CNYS","ECO-988WB","ECO-CGC7D","ECO-CD9U7","ECO-JJC2N","ECO-P8M87","ECO-QKMMR",
+"ECO-KF4WQ","ECO-X666K","ECO-AK6CB","ECO-C9REQ","ECO-6M4PB","ECO-B8GF5","ECO-5JG6D","ECO-CAWT3","ECO-K23GG","ECO-NXT6S",
+"ECO-B32MP","ECO-HNEEF","ECO-225N7","ECO-SR3A5","ECO-N93WN","ECO-KWDMZ","ECO-EQ5F3","ECO-W6KEZ","ECO-7Q7SP","ECO-5T7KB",
+"ECO-F6S28","ECO-9HT32","ECO-PSKXZ","ECO-S8XB3","ECO-PD5R5","ECO-ZK8XC","ECO-75SGD","ECO-CF3RB","ECO-NPBD6","ECO-DCYXT",
+"ECO-57H5H","ECO-8RHB7","ECO-F6U3T","ECO-GQTMU","ECO-H9AZT","ECO-DNCB3","ECO-34NKH","ECO-RJAZF","ECO-VBKTP","ECO-UTEPK",
+"ECO-7CHUD","ECO-NK9SB","ECO-7BCAG","ECO-UNEUE","ECO-BN8NY","ECO-WBEQD","ECO-EE7R5","ECO-U2VZV","ECO-R5PKG","ECO-8QQBG"
+];
+
+const PER_PAGE = 35; // 5 cols × 7 rows
+const totalPages = Math.ceil(codes.length / PER_PAGE);
+
+for (let p = 0; p < totalPages; p++) {
+  const pageDiv = document.createElement('div');
+  pageDiv.className = 'page';
+
+  const start = p * PER_PAGE;
+  const end = Math.min(start + PER_PAGE, codes.length);
+
+  for (let i = start; i < start + PER_PAGE; i++) {
+    const card = document.createElement('div');
+    card.className = 'card';
+
+    if (i < end) {
+      card.innerHTML = `
+        <div class="card-title">ปัดขวาพิทักษ์โลก</div>
+        <div class="card-sub">งานวันวิทยาศาสตร์ ม.ราชภัฏศรีสะเกษ</div>
+        <div class="card-icon">🔑</div>
+        <div class="card-code">${codes[i]}</div>
+        <div class="card-info">ใช้โค้ดนี้ในเกมเพื่อรับ 3 Key</div>
+        <div class="card-uses">ใช้ได้ 1 ครั้ง</div>
+      `;
+    }
+
+    pageDiv.appendChild(card);
+  }
+
+  document.body.appendChild(pageDiv);
+}
+
+// Update header with page count
+document.querySelector('.no-print').insertAdjacentHTML('beforeend',
+  `<span style="margin-left:8px; opacity:0.8">| ${totalPages} หน้า A4</span>`
+);
+</script>
+</body>
+</html>

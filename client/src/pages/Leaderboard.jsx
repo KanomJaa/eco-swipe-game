@@ -3,17 +3,21 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { fetchLeaderboard, checkPlayer } from '../utils/api';
 
-function escHtml(s) {
-  if (!s) return '';
-  const d = document.createElement('div');
-  d.appendChild(document.createTextNode(s));
-  return d.innerHTML;
+function formatCountdown(ms) {
+  if (ms <= 0) return '00:00';
+  const totalSec = Math.floor(ms / 1000);
+  const m = Math.floor(totalSec / 60);
+  const s = totalSec % 60;
+  return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
 }
 
 export default function Leaderboard() {
   const navigate = useNavigate();
   const [top3, setTop3] = useState([]);
+  const [prevTop, setPrevTop] = useState([]);
+  const [countdown, setCountdown] = useState('');
   const lastDataRef = useRef('');
+  const resetsAtRef = useRef(null);
 
   useEffect(() => {
     // Verify player
@@ -38,10 +42,13 @@ export default function Leaderboard() {
 
     async function load() {
       try {
-        const data = await fetchLeaderboard();
-        const t = data.slice(0, 3);
+        const res = await fetchLeaderboard();
+        const list = res.leaderboard || res;
+        const t = list.slice(0, 3);
         const str = JSON.stringify(t);
         localStorage.setItem('eco_lb_cache', str);
+        if (res.resetsAt) resetsAtRef.current = new Date(res.resetsAt).getTime();
+        if (res.previousTop) setPrevTop(res.previousTop);
         if (str !== lastDataRef.current) {
           lastDataRef.current = str;
           setTop3(t);
@@ -50,8 +57,18 @@ export default function Leaderboard() {
     }
 
     load();
-    const interval = setInterval(load, 5000);
-    return () => clearInterval(interval);
+    const dataInterval = setInterval(load, 5000);
+
+    // Countdown timer
+    const tickInterval = setInterval(() => {
+      if (resetsAtRef.current) {
+        const left = resetsAtRef.current - Date.now();
+        setCountdown(formatCountdown(left));
+        if (left <= 0) load(); // refresh when hour resets
+      }
+    }, 1000);
+
+    return () => { clearInterval(dataInterval); clearInterval(tickInterval); };
   }, [navigate]);
 
   const podiumOrder = [];
@@ -107,6 +124,12 @@ export default function Leaderboard() {
         </motion.h1>
         <p className="text-sm text-white/30">ปัดขวาพิทักษ์โลก</p>
         <p className="text-xs text-white/20 mt-1">งานวันวิทยาศาสตร์ มหาวิทยาลัยราชภัฏศรีสะเกษ</p>
+        {countdown && (
+          <div className="mt-3 inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10">
+            <span className="text-xs text-white/40">รีเซ็ตใน</span>
+            <span className="text-sm font-mono font-bold text-amber-400">{countdown}</span>
+          </div>
+        )}
       </header>
 
       {/* Podium */}
@@ -161,6 +184,40 @@ export default function Leaderboard() {
           ))
         )}
       </section>
+
+      {/* Previous Hour Top 3 */}
+      {prevTop.length > 0 && (
+        <motion.section
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="w-full max-w-sm mx-auto px-4 pb-8"
+        >
+          <div className="glass rounded-2xl p-4">
+            <p className="text-xs text-white/40 text-center mb-3">🕐 Top รอบก่อนหน้า</p>
+            <div className="space-y-2">
+              {prevTop.map((p) => (
+                <div key={p.rank} className="flex items-center gap-3 px-3 py-2 rounded-xl bg-white/5">
+                  <span className={`text-sm font-black w-5 text-center ${
+                    p.rank === 1 ? 'text-amber-400' : p.rank === 2 ? 'text-gray-300' : 'text-orange-400'
+                  }`}>
+                    {p.rank}
+                  </span>
+                  <div className="w-8 h-8 rounded-full border border-white/20 overflow-hidden bg-white/10 shrink-0">
+                    <img src={`/${p.avatar || 'icons/male_1.png'}`} alt={p.nickname} className="w-full h-full object-cover" />
+                  </div>
+                  <span className="text-sm text-white/70 truncate flex-1">{p.nickname}</span>
+                  <span className={`text-sm font-black font-nunito ${
+                    p.rank === 1 ? 'text-amber-400' : p.rank === 2 ? 'text-gray-300' : 'text-orange-400'
+                  }`}>
+                    {p.score.toLocaleString()}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </motion.section>
+      )}
     </div>
   );
 }

@@ -197,57 +197,54 @@ router.post('/score', async (req, res) => {
     res.json({ success: true, score: currentScore, newTopRank, isNewPersonalBest });
 });
 
-// Get leaderboard
-router.get('/leaderboard', async (req, res) => {
-    if (db.connected) {
-        try {
-            const topScores = await Score.aggregate([
-                { $sort: { score: -1 } },
-                {
-                    $group: {
-                        _id: '$playerId',
-                        nickname: { $first: '$nickname' },
-                        score: { $first: '$score' },
-                        maxCombo: { $first: '$maxCombo' },
-                        playedAt: { $first: '$playedAt' }
-                    }
-                },
-                { $sort: { score: -1 } },
-                { $limit: 10 }
-            ]);
+// Helper: build leaderboard from Score aggregation for a time range (Mongo)
+async function mongoLeaderboard(start, end, limit = 10) {
+    const topScores = await Score.aggregate([
+        { $match: { playedAt: { $gte: start, $lt: end } } },
+        { $sort: { score: -1 } },
+        {
+            $group: {
+                _id: '$playerId',
+                nickname: { $first: '$nickname' },
+                score: { $first: '$score' },
+                maxCombo: { $first: '$maxCombo' },
+                playedAt: { $first: '$playedAt' }
+            }
+        },
+        { $sort: { score: -1 } },
+        { $limit: limit }
+    ]);
 
-            const pKeys = topScores.map(item => item._id);
-            const players = await Player.find({ playerId: { $in: pKeys } });
-            const playerMap = {};
-            players.forEach(p => { playerMap[p.playerId] = p.avatar; });
+    const pKeys = topScores.map(item => item._id);
+    const players = await Player.find({ playerId: { $in: pKeys } });
+    const playerMap = {};
+    players.forEach(p => { playerMap[p.playerId] = p.avatar; });
 
-            const leaderboard = topScores.map((entry, index) => ({
-                rank: index + 1,
-                nickname: entry.nickname,
-                avatar: playerMap[entry._id] || 'icons/male_1.png',
-                score: entry.score,
-                maxCombo: entry.maxCombo,
-                playedAt: entry.playedAt
-            }));
+    return topScores.map((entry, index) => ({
+        rank: index + 1,
+        nickname: entry.nickname,
+        avatar: playerMap[entry._id] || 'icons/male_1.png',
+        score: entry.score,
+        maxCombo: entry.maxCombo,
+        playedAt: entry.playedAt
+    }));
+}
 
-            return res.json(leaderboard);
-        } catch (err) {
-            console.error('Mongo Error on /api/leaderboard:', err.message);
-        }
-    }
-
-    const data = loadData();
+// Helper: build leaderboard from JSON data for a time range
+function jsonLeaderboard(data, start, end, limit = 10) {
     const bestScores = {};
     data.scores.forEach((entry) => {
+        const playedAt = new Date(entry.playedAt);
+        if (playedAt < start || playedAt >= end) return;
         const pKey = entry.playerId || entry.ip;
         if (!bestScores[pKey] || entry.score > bestScores[pKey].score) {
             bestScores[pKey] = entry;
         }
     });
 
-    const leaderboard = Object.values(bestScores)
+    return Object.values(bestScores)
         .sort((a, b) => b.score - a.score)
-        .slice(0, 10)
+        .slice(0, limit)
         .map((entry, i) => {
             const pKey = entry.playerId || entry.ip;
             return {
@@ -259,8 +256,32 @@ router.get('/leaderboard', async (req, res) => {
                 playedAt: entry.playedAt,
             };
         });
+}
 
-    res.json(leaderboard);
+// Get leaderboard (resets every hour, includes previous hour top 3)
+router.get('/leaderboard', async (req, res) => {
+    const now = new Date();
+    const hourStart = new Date(now.getFullYear(), now.getMonth(), now.getDate(), now.getHours(), 0, 0, 0);
+    const hourEnd = new Date(hourStart.getTime() + 60 * 60 * 1000);
+    const prevHourStart = new Date(hourStart.getTime() - 60 * 60 * 1000);
+
+    if (db.connected) {
+        try {
+            const [leaderboard, previousTop] = await Promise.all([
+                mongoLeaderboard(hourStart, hourEnd, 10),
+                mongoLeaderboard(prevHourStart, hourStart, 3),
+            ]);
+            return res.json({ leaderboard, previousTop, resetsAt: hourEnd.toISOString() });
+        } catch (err) {
+            console.error('Mongo Error on /api/leaderboard:', err.message);
+        }
+    }
+
+    const data = loadData();
+    const leaderboard = jsonLeaderboard(data, hourStart, hourEnd, 10);
+    const previousTop = jsonLeaderboard(data, prevHourStart, hourStart, 3);
+
+    res.json({ leaderboard, previousTop, resetsAt: hourEnd.toISOString() });
 });
 
 // Redeem a code to get keys

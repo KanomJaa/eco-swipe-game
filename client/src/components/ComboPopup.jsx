@@ -17,7 +17,7 @@ export default function ComboPopup({ multiplier, show }) {
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 1.3 }}
           transition={{ duration: 0.25, ease: 'easeOut' }}
-          className="fixed top-16 left-0 right-0 z-[100] flex justify-center pointer-events-none"
+          className="fixed top-28 left-0 right-0 z-[100] flex justify-center pointer-events-none"
         >
           <div className="text-center">
             <div className={`text-4xl sm:text-5xl font-black bg-gradient-to-r ${msg.color} bg-clip-text text-transparent`}>

@@ -58,12 +58,12 @@ export function getMultiplier(combo) {
 }
 
 export function getCardTimeLimit(score) {
-  if (score < 500) return 2.5;
-  if (score < 1500) return 2.0;
-  if (score < 3000) return 1.7;
-  if (score < 5000) return 1.4;
-  if (score < 8000) return 1.2;
-  return 1.0;
+  if (score < 500) return 4.0;
+  if (score < 1500) return 3.5;
+  if (score < 3000) return 3.0;
+  if (score < 5000) return 2.5;
+  if (score < 8000) return 2.0;
+  return 1.5;
 }
 
 export function preloadAllImages() {

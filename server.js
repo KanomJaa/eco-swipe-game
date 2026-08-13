@@ -3,7 +3,7 @@ import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import { existsSync } from 'fs';
 import { connectDB, mongoose } from './src/db.js';
-import { Player } from './src/models.js';
+import { Player, Code } from './src/models.js';
 import { setDataFilePath } from './src/helpers.js';
 import apiRoutes from './src/routes.js';
 
@@ -16,11 +16,21 @@ setDataFilePath(join(__dirname, 'data.json'));
 // Connect to MongoDB
 await connectDB();
 
-// Clean up legacy index after connection
+// Setup after connection
 mongoose.connection.on('connected', async () => {
     try {
         await Player.collection.dropIndex('ip_1');
         console.log('🧹 Cleaned legacy ip_1 index from Mongo');
+    } catch (e) { }
+
+    // Ensure admin code exists
+    try {
+        await Code.findOneAndUpdate(
+            { code: 'ADMIN' },
+            { code: 'ADMIN', keysPerRedeem: 3, maxUses: 0, isAdmin: true },
+            { upsert: true, setDefaultsOnInsert: true }
+        );
+        console.log('🔑 Admin code ready');
     } catch (e) { }
 });
 

@@ -79,7 +79,7 @@ router.post('/register', async (req, res) => {
         return res.status(400).json({ error: 'ชื่อนี้มีผู้ใช้งานแล้ว กรุณาใช้ชื่ออื่น 🧪' });
     }
 
-    const FREE_KEYS = 999;
+    const FREE_KEYS = 3;
 
     data.players[key] = {
         playerId: key,
@@ -302,14 +302,16 @@ router.post('/redeem-code', async (req, res) => {
             if (!codeDoc) {
                 return res.status(400).json({ error: 'โค้ดไม่ถูกต้อง' });
             }
-            if (codeDoc.usedBy.includes(key)) {
-                return res.status(400).json({ error: 'คุณใช้โค้ดนี้ไปแล้ว' });
-            }
-            if (codeDoc.maxUses > 0 && codeDoc.usedBy.length >= codeDoc.maxUses) {
-                return res.status(400).json({ error: 'โค้ดนี้ถูกใช้ครบจำนวนแล้ว' });
+            if (!codeDoc.isAdmin) {
+                if (codeDoc.usedBy.includes(key)) {
+                    return res.status(400).json({ error: 'คุณใช้โค้ดนี้ไปแล้ว' });
+                }
+                if (codeDoc.maxUses > 0 && codeDoc.usedBy.length >= codeDoc.maxUses) {
+                    return res.status(400).json({ error: 'โค้ดนี้ถูกใช้ครบจำนวนแล้ว' });
+                }
             }
 
-            codeDoc.usedBy.push(key);
+            if (!codeDoc.usedBy.includes(key)) codeDoc.usedBy.push(key);
             await codeDoc.save();
 
             const player = await Player.findOne({ playerId: key });
@@ -338,14 +340,16 @@ router.post('/redeem-code', async (req, res) => {
         return res.status(400).json({ error: 'โค้ดไม่ถูกต้อง' });
     }
     if (!codeData.usedBy) codeData.usedBy = [];
-    if (codeData.usedBy.includes(key)) {
-        return res.status(400).json({ error: 'คุณใช้โค้ดนี้ไปแล้ว' });
-    }
-    if (codeData.maxUses > 0 && codeData.usedBy.length >= codeData.maxUses) {
-        return res.status(400).json({ error: 'โค้ดนี้ถูกใช้ครบจำนวนแล้ว' });
+    if (!codeData.isAdmin) {
+        if (codeData.usedBy.includes(key)) {
+            return res.status(400).json({ error: 'คุณใช้โค้ดนี้ไปแล้ว' });
+        }
+        if (codeData.maxUses > 0 && codeData.usedBy.length >= codeData.maxUses) {
+            return res.status(400).json({ error: 'โค้ดนี้ถูกใช้ครบจำนวนแล้ว' });
+        }
     }
 
-    codeData.usedBy.push(key);
+    if (!codeData.usedBy.includes(key)) codeData.usedBy.push(key);
     const player = data.players[key];
     if (!player) {
         return res.status(400).json({ error: 'ยังไม่ได้ลงทะเบียน' });

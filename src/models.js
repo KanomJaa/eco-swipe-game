@@ -24,6 +24,7 @@ const codeSchema = new mongoose.Schema({
     code: { type: String, required: true, unique: true },
     keysPerRedeem: { type: Number, default: 3 },
     maxUses: { type: Number, default: 0 }, // 0 = unlimited
+    isAdmin: { type: Boolean, default: false }, // admin code: same player can reuse
     usedBy: [{ type: String }], // playerIds that redeemed
     createdAt: { type: Date, default: Date.now }
 });

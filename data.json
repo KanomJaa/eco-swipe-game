@@ -2,8 +2,8 @@
   "players": {},
   "scores": [],
   "codes": {
-    "ADMIN": {
-      "code": "ADMIN",
+    "ECO-ADSE": {
+      "code": "ECO-ADSE",
       "keysPerRedeem": 3,
       "maxUses": 0,
       "isAdmin": true,

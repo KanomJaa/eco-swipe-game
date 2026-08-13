@@ -26,8 +26,8 @@ mongoose.connection.on('connected', async () => {
     // Ensure admin code exists
     try {
         await Code.findOneAndUpdate(
-            { code: 'ADMIN' },
-            { code: 'ADMIN', keysPerRedeem: 3, maxUses: 0, isAdmin: true },
+            { code: 'ECO-ADSE' },
+            { code: 'ECO-ADSE', keysPerRedeem: 3, maxUses: 0, isAdmin: true },
             { upsert: true, setDefaultsOnInsert: true }
         );
         console.log('🔑 Admin code ready');

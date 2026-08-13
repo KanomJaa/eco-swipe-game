@@ -28,17 +28,16 @@ if (!data.codes['ECO-ADSE']) {
     saveData(data);
 }
 
-// Connect to MongoDB
+// Connect to MongoDB and setup
 await connectDB();
 
-// Setup after connection
-mongoose.connection.on('connected', async () => {
+if (mongoose.connection.readyState === 1) {
     try {
         await Player.collection.dropIndex('ip_1');
         console.log('🧹 Cleaned legacy ip_1 index from Mongo');
     } catch (e) { }
 
-    // Ensure admin code exists
+    // Ensure admin code exists in MongoDB
     try {
         await Code.findOneAndUpdate(
             { code: 'ECO-ADSE' },
@@ -47,7 +46,7 @@ mongoose.connection.on('connected', async () => {
         );
         console.log('🔑 Admin code ready');
     } catch (e) { }
-});
+}
 
 // Express app
 const app = express();

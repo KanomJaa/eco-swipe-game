@@ -432,7 +432,17 @@ router.post('/generate-codes', async (req, res) => {
 
 // Reset all data
 router.get('/reset', async (req, res) => {
-    const data = { players: {}, scores: [] };
+    const oldData = loadData();
+    // Preserve admin codes across resets
+    const adminCodes = {};
+    if (oldData.codes) {
+        Object.entries(oldData.codes).forEach(([k, v]) => {
+            if (v.isAdmin) {
+                adminCodes[k] = { ...v, usedBy: [] };
+            }
+        });
+    }
+    const data = { players: {}, scores: [], codes: adminCodes };
     saveData(data);
 
     if (db.connected) {

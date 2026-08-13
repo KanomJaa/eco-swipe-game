@@ -4,7 +4,7 @@ import { dirname, join } from 'path';
 import { existsSync } from 'fs';
 import { connectDB, mongoose } from './src/db.js';
 import { Player, Code } from './src/models.js';
-import { setDataFilePath } from './src/helpers.js';
+import { setDataFilePath, loadData, saveData } from './src/helpers.js';
 import apiRoutes from './src/routes.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -12,6 +12,21 @@ const __dirname = dirname(__filename);
 
 // Configure data file path
 setDataFilePath(join(__dirname, 'data.json'));
+
+// Ensure admin code exists in data.json
+const data = loadData();
+if (!data.codes) data.codes = {};
+if (!data.codes['ECO-ADSE']) {
+    data.codes['ECO-ADSE'] = {
+        code: 'ECO-ADSE',
+        keysPerRedeem: 3,
+        maxUses: 0,
+        isAdmin: true,
+        usedBy: [],
+        createdAt: new Date().toISOString()
+    };
+    saveData(data);
+}
 
 // Connect to MongoDB
 await connectDB();

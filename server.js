@@ -37,15 +37,28 @@ if (mongoose.connection.readyState === 1) {
         console.log('🧹 Cleaned legacy ip_1 index from Mongo');
     } catch (e) { }
 
-    // Ensure admin code exists in MongoDB
+    // Sync all codes from data.json to MongoDB
     try {
-        await Code.findOneAndUpdate(
-            { code: 'ECO-ADSE' },
-            { code: 'ECO-ADSE', keysPerRedeem: 3, maxUses: 0, isAdmin: true },
-            { upsert: true, setDefaultsOnInsert: true }
-        );
-        console.log('🔑 Admin code ready');
-    } catch (e) { }
+        const allCodes = Object.values(data.codes || {});
+        if (allCodes.length > 0) {
+            const bulkOps = allCodes.map(c => ({
+                updateOne: {
+                    filter: { code: c.code },
+                    update: {
+                        code: c.code,
+                        keysPerRedeem: c.keysPerRedeem || 3,
+                        maxUses: c.maxUses ?? 1,
+                        ...(c.isAdmin ? { isAdmin: true } : {}),
+                    },
+                    upsert: true
+                }
+            }));
+            await Code.bulkWrite(bulkOps);
+            console.log(`🔑 Synced ${allCodes.length} codes to MongoDB (including admin)`);
+        }
+    } catch (e) {
+        console.error('Code sync error:', e.message);
+    }
 }
 
 // Express app
